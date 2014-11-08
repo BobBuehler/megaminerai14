@@ -59,24 +59,54 @@ public static class Bb
 
         foreach(var plant in BaseAI.plants)
         {
+            Point p = new Point(plant.X, plant.Y);
             int type = plant.Mutation;
             switch(type)
             {
                 case MOTHER:
+                    if (plant.Owner == myPlayer)
+                        ourMother.Add(p);
+                    else
+                        theirMother.Add(p);
                     break;
                 case SPAWNER:
+                    if (plant.Owner == myPlayer)
+                        ourSpawners.Add(p);
+                    else
+                        theirSpawners.Add(p);
                     break;
                 case CHOKER:
+                    if (plant.Owner == myPlayer)
+                        ourChokers.Add(p);
+                    else
+                        theirChokers.Add(p);
                     break;
                 case SOAKER:
+                    if (plant.Owner == myPlayer)
+                        ourSoakers.Add(p);
+                    else
+                        theirSoakers.Add(p);
                     break;
                 case BUMBLEWEED:
+                    if (plant.Owner == myPlayer)
+                        ourBumbleweeds.Add(p);
+                    else
+                        theirBumbleweeds.Add(p);
                     break;
                 case ARALIA:
+                    if (plant.Owner == myPlayer)
+                        ourAralias.Add(p);
+                    else
+                        theirAralias.Add(p);
                     break;
                 case TITAN:
+                    if (plant.Owner == myPlayer)
+                        ourTitans.Add(p);
+                    else
+                        theirTitans.Add(p);
                     break;
                 case POOL:
+                    pools.Add(p);
                     break;
             }
         }
