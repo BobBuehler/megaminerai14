@@ -16,6 +16,16 @@ public static class Trig
         return magnitude;
     }
 
+    private static Dictionary<int, IEnumerable<Point>> _inboundsMap = new Dictionary<int, IEnumerable<Point>>();
+    public static IEnumerable<Point> CalcInRadius(int r)
+    {
+        return null;
+    }
+    public static IEnumerable<Point> CalcInBounds(Circle c)
+    {
+        return null;
+    }
+
     public static int Distance(int x1, int y1, int x2, int y2)
     {
         return CalcMagnitude(new Point(x1 - x2, y1 - y2));
