@@ -5,6 +5,7 @@ public class Program
 {
   public static void Main(string[] args)
   {
+      Console.WriteLine(new Point(5, 6));
     if(args.Length < 1)
     {
       System.Console.WriteLine("Please enter a hostname");
