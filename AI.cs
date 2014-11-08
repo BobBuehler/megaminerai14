@@ -43,13 +43,34 @@ public class AI : BaseAI
         int mySpores = me.Spores;
 
         //Step 2: Spawn Stuff
-        
-        //Spawn soakers as close to pools as they can (to the pools closest to the spawners and closest to the enemy mother)
+            //What to spawn:
+                //Where to spawn:
+                    //Early Game:
+                        //Spawn spawners as close to the enemy mother as possible but not in a pool
+                        //Spawn soakers as close to pools as they can (to the pools closest to the spawners and closest to the enemy mother first)
+                    //General Battle:
+                        //Spawn chokers => Where: As close to the fight as possible || How Many: More than the enemy (6 ALWAYS 6)
+                        //Reflexive spawning of aralias. So if they have one, we spawn one (too advanced for Bob)
+                        //Spawn soakers as close to pools as they can (to the pools closest to the spawners and closest to the enemy mother first)
+                    //Late Game:
+                        //We are losing:
+                            //Spawn Titans around the perimeter
+                            //Spawn hecka chokers and aralias because of higher spore rate
+                        //We are winning:
+                            //KILL THEM
+        //Check pool locations to see if and where the ally plants are and place soakers in the pool but in range of the allies
 
         //Step 3: Move
+            //Move plants in groups
+            //Move soakers in pools (needing more strength) closer to the allies by the pool so the soaker is in range
+            //Chokers should just always move towards the mother (attack while passing by)
+            //Check enemy range to move out of range (if desired i.e. soakers to another part of the pool that is outside enemy range)
+            //Keep titans out of enemy attack range but in titan debuff range for the enemies
 
         //Step 4: Radiate
-
+            //All soakers buff teammates in range
+            //All chokers attack (priority nearest our mother)
+            //Titans debuff cause yeah
         return true;
     }
 
