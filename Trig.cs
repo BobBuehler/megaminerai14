@@ -16,14 +16,24 @@ public static class Trig
         return magnitude;
     }
 
+    public static int Distance(int x1, int y1, int x2, int y2)
+    {
+        return CalcMagnitude(new Point(x1 - x2, y1 - y2));
+    }
+
+    public static int Distance(Point p1, Point p2)
+    {
+        return Distance(p1.x, p1.y, p2.x, p2.y);
+    }
+
     public static bool IsInRange(int x1, int y1, int x2, int y2, int range)
     {
-        return CalcMagnitude(new Point(x1 - x2, y1 - y2)) < range;
+        return Distance(x1, y1, x2, y2) < range;
     }
 
     public static bool IsInRange(Point p1, Point p2, int range)
     {
-        return CalcMagnitude(new Point(p1.x - p2.x, p1.y - p2.y)) < range;
+        return Distance(p1, p2) < range;
     }
 
     public static IEnumerable<Point> PointsInRect(int minX, int maxX, int minY, int maxY)
@@ -46,5 +56,11 @@ public static class Trig
     public static IEnumerable<Point> PointsInCircle(Circle c)
     {
         return PointsInRect(c.p.x - c.r, c.p.x + c.r, c.p.y - c.r, c.p.y + c.r).Where(p => c.IsInRange(p));
+    }
+
+    public static Tuple<Point, Point> FindClosestPair(IEnumerable<Point> set1, IEnumerable<Point> set2)
+    {
+        var allPairs = set1.SelectMany(p1 => set2.Select(p2 => Tuple.Create(p1, p2)));
+        return allPairs.MinByValue(pp => Trig.Distance(pp.Item1, pp.Item2));
     }
 }

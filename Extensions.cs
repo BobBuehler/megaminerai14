@@ -28,4 +28,31 @@ public static class Extensions
     {
         return Trig.PointsInCircle(c);
     }
+
+    public static K MinByValue<K, V>(this IEnumerable<K> source, Func<K, V> predicate)
+    {
+        K min = source.First();
+        V minValue = predicate(min);
+        var comparer = Comparer<V>.Default;
+        foreach (var k in source)
+        {
+            var v = predicate(k);
+            if (comparer.Compare(minValue, v) > 0)
+            {
+                min = k;
+                minValue = v;
+            }
+        }
+        return min;
+    }
+
+    public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source)
+    {
+        return new HashSet<T>(source);
+    }
+
+    public static bool IsOnBoard(this Point point)
+    {
+        return point.x >= 0 && point.x < Bb.Width && point.y >= 0 && point.y < Bb.Height;
+    }
 }

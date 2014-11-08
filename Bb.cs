@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public static class Bb
 {
-    public static const int
+    public const int
                MOTHER = 0,
                SPAWNER = 1,
                CHOKER = 2,
