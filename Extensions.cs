@@ -55,4 +55,10 @@ public static class Extensions
     {
         return point.x >= 0 && point.x < Bb.Width && point.y >= 0 && point.y < Bb.Height;
     }
+
+    public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
+    {
+        foreach(var t in source)
+            action(t);
+    }
 }

@@ -2,9 +2,24 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-class Pather
+public class Pather
 {
-    public class Search
+    public static IEnumerable<Point> CalcNeighboors(Point p, Func<Point, bool> isPassable)
+    {
+        var neighboors = new Point[]{
+            new Point(p.x - 1, p.y - 1),
+            new Point(p.x - 1, p.y),
+            new Point(p.x - 1, p.y + 1),
+            new Point(p.x, p.y - 1),
+            new Point(p.x, p.y + 1),
+            new Point(p.x + 1, p.y - 1),
+            new Point(p.x + 1, p.y),
+            new Point(p.x + 1, p.y + 1),
+        };
+        return neighboors.Where(isPassable);
+    }
+
+    public class AStar
     {
         public LinkedList<Point> Path;
         public HashSet<Point> Open;
@@ -13,12 +28,7 @@ class Pather
         public Dictionary<Point, int> FScore;
         public Dictionary<Point, Point> From;
 
-        public Search(IEnumerable<Point> starts, Func<Point, bool> isGoal, Func<Point, Point, int> costCalc, Func<Point, int> hCalc, Func<Point, IEnumerable<Point>> neighboorCalc, int maxCost)
-        {
-            DoSearch(starts, isGoal, costCalc, hCalc, neighboorCalc, maxCost);
-        }
-
-        private void DoSearch(IEnumerable<Point> starts, Func<Point, bool> isGoal, Func<Point, Point, int> costCalc, Func<Point, int> hCalc, Func<Point, IEnumerable<Point>> neighboorCalc, int maxCost)
+        public AStar(IEnumerable<Point> starts, Func<Point, bool> isGoal, Func<Point, Point, int> costCalc, Func<Point, int> hCalc, Func<Point, IEnumerable<Point>> neighboorCalc)
         {
             Open = new HashSet<Point>(starts);
             Closed = new HashSet<Point>();
@@ -31,7 +41,7 @@ class Pather
             while (Open.Any())
             {
                 var current = Open.MinByValue(p => FScore[p]);
-                if (GScore[current] > maxCost) return;
+                if (GScore[current] > int.MaxValue) return;
 
                 if (isGoal(current))
                 {
