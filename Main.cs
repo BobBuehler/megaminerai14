@@ -7,7 +7,7 @@ public class Program
   {
     if(args.Length < 1)
     {
-      Console.WriteLine(new Point(5, 6));
+      Console.WriteLine(Solver.CalcMagnitude(new Point(5, 6)));
       System.Console.WriteLine("Please enter a hostname");
       return;
     }

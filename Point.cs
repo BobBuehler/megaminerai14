@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 public struct Point
 {
-    public short x;
-    public short y;
+    public int x;
+    public int y;
 
-    public Point(short x, short y)
+    public Point(int x, int y)
     {
         this.x = x;
         this.y = y;
