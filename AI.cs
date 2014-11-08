@@ -5,7 +5,7 @@ using System.Collections.Generic;
 /// <summary>
 /// The class implementing gameplay logic.
 /// </summary>
-class AI : BaseAI
+public class AI : BaseAI
 {
     static Player me;
     static Plant mother;
@@ -203,6 +203,8 @@ class AI : BaseAI
         {
             directionOfEnemy = -1;
         }
+
+        Bb.init(this);
     }
 
     /// <summary>
