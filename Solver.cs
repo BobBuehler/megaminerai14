@@ -10,7 +10,7 @@ public static class Solver
         return circlePoints.First();
     }
 
-    public static Point FindPointInCircleNearestTarget(Circle c, Point p, Func<Point, bool> avoid)
+    public static Point FindPointInCircleNearestTarget(Circle c, Point p)
     {
         return new Point();
     }
