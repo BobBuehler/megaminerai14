@@ -12,6 +12,8 @@ public static class Bb
                ARALIA = 5,
                TITAN = 6,
                POOL = 7;
+
+    //Plants
     public static int myPlayer;
     public static AI ourAI;
     public static int Width = 2048;
@@ -33,6 +35,10 @@ public static class Bb
     public static HashSet<Point> theirMother;
 
     public static HashSet<Point> pools;
+
+    //Number of Plants
+    public static int allOurPlants;
+    public static int allTheirPlants;
     
     public static void init(AI ai)
     {
@@ -57,6 +63,9 @@ public static class Bb
         theirMother = new HashSet<Point>();
         pools = new HashSet<Point>();
 
+        allOurPlants = 0;
+        allTheirPlants = 0;
+
         foreach(var plant in BaseAI.plants)
         {
             Point p = new Point(plant.X, plant.Y);
@@ -65,45 +74,87 @@ public static class Bb
             {
                 case MOTHER:
                     if (plant.Owner == myPlayer)
+                    {
                         ourMother.Add(p);
-                    else
+                        allOurPlants++;
+                    }
+                    else 
+                    {
                         theirMother.Add(p);
+                        allTheirPlants++;
+                    }
                     break;
                 case SPAWNER:
-                    if (plant.Owner == myPlayer)
+                    if (plant.Owner == myPlayer) 
+                    {
                         ourSpawners.Add(p);
-                    else
+                        allOurPlants++;
+                    } 
+                    else 
+                    {
                         theirSpawners.Add(p);
+                        allTheirPlants++;
+                    }
                     break;
                 case CHOKER:
-                    if (plant.Owner == myPlayer)
+                    if (plant.Owner == myPlayer) 
+                    {
                         ourChokers.Add(p);
-                    else
+                        allOurPlants++;
+                    } 
+                    else 
+                    {
                         theirChokers.Add(p);
+                        allTheirPlants++;
+                    }
                     break;
                 case SOAKER:
                     if (plant.Owner == myPlayer)
+                    {
                         ourSoakers.Add(p);
+                        allOurPlants++;
+                    }
                     else
+                    {
                         theirSoakers.Add(p);
+                        allTheirPlants++;
+                    }
                     break;
                 case BUMBLEWEED:
                     if (plant.Owner == myPlayer)
+                    {
                         ourBumbleweeds.Add(p);
+                        allOurPlants++;
+                    }
                     else
+                    {
                         theirBumbleweeds.Add(p);
+                        allTheirPlants++;
+                    }
                     break;
                 case ARALIA:
                     if (plant.Owner == myPlayer)
+                    {
                         ourAralias.Add(p);
+                        allOurPlants++;
+                    }
                     else
+                    {
                         theirAralias.Add(p);
+                        allTheirPlants++;
+                    }
                     break;
                 case TITAN:
                     if (plant.Owner == myPlayer)
+                    {
                         ourTitans.Add(p);
+                        allOurPlants++;
+                    }
                     else
+                    {
                         theirTitans.Add(p);
+                        allTheirPlants++;
+                    }
                     break;
                 case POOL:
                     pools.Add(p);

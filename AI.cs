@@ -38,147 +38,18 @@ public class AI : BaseAI
     /// <returns>True to end your turn. False to ask the server for updated information.</returns>
     public override bool run()
     {
-        List<Plant> myPlants = getMyPlants();
+        //Step 1: Initialization
+        Bb.readBoard();
+        int mySpores = me.Spores;
 
-        //for every plant we own, move them forward and attack if it finds an enemy
-        for (int j = 0; j < myPlants.Count; j++)
-        {
-            Plant plant = myPlants[j];
-            //only try radiating if it's possible
-            if (plant.RadiatesLeft > 0)
-            {
-                //only heal or buff allies and attack enemies
-                int targetOwner = 1 - playerID();
-                if (plant.Mutation == BUMBLEWEED || plant.Mutation == SOAKER)
-                {
-                    targetOwner = playerID();
-                }
-                for (int i = 0; i < plants.Length; i++)
-                {
-                    Plant foe = plants[i];
+        //Step 2: Spawn Stuff
+        
+        //Spawn soakers as close to pools as they can (to the pools closest to the spawners and closest to the enemy mother)
 
+        //Step 3: Move
 
-                    //don't attack yourself!
-                    if (foe.Id == plant.Id)
-                    {
-                        continue;
-                    }
+        //Step 4: Radiate
 
-                    //if it's dead skip it
-                    if (foe.Rads >= foe.MaxRads)
-                    {
-                        continue;
-                    }
-
-                    //don't mess with pools
-                    if (foe.Mutation == POOL)
-                    {
-                        continue;
-                    }
-
-                    //if it's not the right target
-                    if (foe.Owner != targetOwner)
-                    {
-                        continue;
-                    }
-
-                    //if a healer or soaker can't effect the mother weed
-                    if (targetOwner == playerID() && foe.Mutation == MOTHER)
-                    {
-                        continue;
-                    }
-
-                    //if a soaker can't effect other soakers
-                    if (plant.Mutation == SOAKER && foe.Mutation == SOAKER)
-                    {
-                        continue;
-                    }
-
-                    //if we're within range...
-                    if (distance(plant.X, plant.Y, foe.X, foe.Y) < plant.Range)
-                    {
-                        //get 'im!
-                        plant.radiate(foe.X, foe.Y);
-                        break;
-                    }
-                }
-            }
-            //move them straight to the other side. no regrets.
-            //move as far as possible, as long as it's not off the map
-            int wantedX = plant.X;
-            if (plant.Mutation == BUMBLEWEED)
-            {
-                wantedX += directionOfEnemy * bumbleweedSpeed();
-            }
-            else
-            {
-                wantedX += directionOfEnemy * uprootRange();
-            }
-            if (plant.UprootsLeft > 0 &&
-                getPlantAt(wantedX, plant.Y) == null &&
-                wantedX >= 0 && wantedX < mapWidth())
-            {
-                plant.uproot(wantedX, plant.Y);
-            }
-        }
-
-        //make a new plant every turn, because why not?
-
-        //first, check if we can actually do that
-        if (myPlants.Count >= maxPlants())
-        {
-            //end turn
-            return true;
-        }
-
-        int spawnX = -1, spawnY = -1;
-        double angle = 0;
-        for (int i = 0; i < myPlants.Count; i++)
-        {
-            Plant plant = myPlants[i];
-            //remove all plants in our list except for mothers and spawners
-            if (!(plant.Mutation == MOTHER || plant.Mutation == SPAWNER))
-            {
-                myPlants.Remove(myPlants[i]);
-            }
-        }
-
-        //get a random spawner or mother plant
-        Plant spawnerPlant = myPlants[rand.Next(myPlants.Count)];
-
-        //get a new position centered around that spawner within its range
-        //also, keep generating new coordinates until they become valid ones
-        //Remember from trig:
-        //(random x inside a circle) = centerX + rand(0,1)*radius*cos(angle)
-        int spawnCheckLimit = 0;
-        while (!withinBounds(spawnX, spawnY) || getPlantAt(spawnX, spawnY) != null)
-        {
-            angle = rand.NextDouble() * 2 * Math.PI;
-            while (spawnX < 0 || spawnX >= mapWidth())
-            {
-                spawnX = spawnerPlant.X + (int)(rand.NextDouble() * spawnerPlant.Range * Math.Cos(angle));
-            }
-            while (spawnY < 0 || spawnY >= mapHeight())
-            {
-                spawnY = spawnerPlant.Y + (int)(rand.NextDouble() * spawnerPlant.Range * Math.Sin(angle));
-            }
-            spawnCheckLimit++;
-
-            //if we try to spawn too many times, just give up and end the turn
-            if (spawnCheckLimit > 10)
-            {
-                return true;
-            }
-        }
-
-        //spawn a random type of plant that isn't a mother or a pool at the coordinates we made
-        //of course, make sure we have enough spores to do the job!
-        int mutationType = rand.Next(6) + 1;
-        if (me.Spores >= mutations[mutationType].Spores &&
-            withinSpawnerRange(spawnX, spawnY))
-        {
-            me.germinate(spawnX, spawnY, mutationType);
-        }
         return true;
     }
 
@@ -203,6 +74,8 @@ public class AI : BaseAI
         {
             directionOfEnemy = -1;
         }
+
+        Bb.init(this);
     }
 
     /// <summary>
