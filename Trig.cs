@@ -63,4 +63,14 @@ public static class Trig
         var allPairs = set1.SelectMany(p1 => set2.Select(p2 => Tuple.Create(p1, p2)));
         return allPairs.MinByValue(pp => Trig.Distance(pp.Item1, pp.Item2));
     }
+
+    public static bool IsInRect(Point p, int minX, int maxX, int minY, int maxY)
+    {
+        return p.x >= minX && p.x <= maxX && p.y >= minY && p.y <= maxY;
+    }
+
+    public static bool IsInBounds(Point p)
+    {
+        return IsInRect(p, 0, Bb.Width - 1, 0, Bb.Height - 1);
+    }
 }
