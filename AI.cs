@@ -280,7 +280,7 @@ class AI : BaseAI
                 (plant.Mutation == SPAWNER || plant.Mutation == MOTHER))
             {
                 //if we're within range, we're good
-                if (Solver.IsInRange(x, y, plant.X, plant.Y, plant.Range))
+                if (Trig.IsInRange(x, y, plant.X, plant.Y, plant.Range))
                 {
                     return true;
                 }

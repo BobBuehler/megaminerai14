@@ -25,11 +25,11 @@ public struct Point
 
     public override int GetHashCode()
     {
-        return 0; // TODO
+        return Bb.GetOffset(x, y);
     }
 
     public override string ToString()
     {
-        return String.Format("{0},{1}", x, y);
+        return String.Format("({0},{1})", x, y);
     }
 }
