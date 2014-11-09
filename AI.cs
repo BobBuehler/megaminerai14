@@ -110,7 +110,6 @@ public class AI : BaseAI
                     {
                         ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
                         Bb.readBoard();
-                        ourPlant.talk("HUEHUEHUE");
                         continue;
                     }
                 }
