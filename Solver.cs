@@ -29,7 +29,7 @@ public static class Solver
     public static void PreCalc()
     {
         poolPoints = Bb.pools.SelectMany(p => Trig.CalcPointsInCircle(new Circle(p, 100))).ToHashSet();
-        poolEdges = Bb.pools.SelectMany(p => Trig.CalcOuterEdgeOfCircle(new Circle(p, 100))).Where(p => IsPassable(p)).ToHashSet();
+        poolEdges = new HashSet<Point>(); // Bb.pools.SelectMany(p => Trig.CalcOuterEdgeOfCircle(new Circle(p, 100))).Where(p => IsPassable(p)).ToHashSet();
         nearEnemies = Bb.allTheirPlants.Select(p => new Point(p.x - 1, p.y)).Where(p => IsPassable(p)).ToHashSet();
 
     }
@@ -45,12 +45,15 @@ public static class Solver
 
         var uprootRange = Bb.GetUprootRange(plantType);
         var starts = Bb.ourMother.Concat(Bb.ourSpawners);
+        var goalEdge = Trig.CalcInnerEdgeOfCircle(new Circle(goal, goalRange));
+        var additionalNeighboors = goalEdge.Concat(avoidPools ? poolEdges : new HashSet<Point>()).Where(n => IsPassable(n)).ToHashSet();
+
         Func<Point, IEnumerable<Point>> getNeighboors = p =>
         {
             var stepSize = Bb.plantLookup.ContainsKey(p) ? p.GetPlant().Range : uprootRange;
             return Trig.CalcInnerEdgeOfCircle(new Circle(p, stepSize))
-                .Concat(avoidPools ? poolEdges : new HashSet<Point>())
-                .Where(n => Trig.IsInRange(p, n, stepSize) && IsPassable(n, avoidPools));
+                .Concat(additionalNeighboors)
+                .Where(n => IsPassable(n, avoidPools) && Trig.IsInRange(p, n, stepSize));
         };
 
         var astar = new Pather.AStar(
@@ -89,11 +92,14 @@ public static class Solver
 
     public static Pather.AStar Search(IEnumerable<Point> starts, int stepSize, Point goal, int goalRange, bool avoidPools = true)
     {
+        var goalEdge = Trig.CalcInnerEdgeOfCircle(new Circle(goal, goalRange));
+        var additionalNeighboors = goalEdge.Concat(avoidPools ? poolEdges : new HashSet<Point>()).Where(n => IsPassable(n)).ToHashSet();
+
         Func<Point, IEnumerable<Point>> getNeighboors = p =>
         {
             return Trig.CalcInnerEdgeOfCircle(new Circle(p, stepSize))
-                .Concat(avoidPools ? poolEdges : new HashSet<Point>())
-                .Where(n => Trig.IsInRange(p, n, stepSize) && IsPassable(n, avoidPools));
+                .Concat(additionalNeighboors)
+                .Where(n => IsPassable(n, avoidPools) && Trig.IsInRange(p, n, stepSize));
         };
 
         var astar = new Pather.AStar(
