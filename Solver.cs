@@ -23,7 +23,7 @@ public static class Solver
         return potentialStarts.MinByValue(pointCount, p => targets.Min(t => Trig.Distance(p, t)));
     }
 
-    public static void MoveToward(Point start, Point target)
+    public static void MoveToward(Plant mover, Point target)
     {
         Bb.readBoard();
     }
