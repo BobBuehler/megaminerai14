@@ -50,6 +50,8 @@ public class AI : BaseAI
         return "password";
     }
 
+    public static Random rand = new Random();
+
     /// <summary>
     /// This function is called each time it is your turn.
     /// </summary>
@@ -127,19 +129,24 @@ public class AI : BaseAI
                 {
                     if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range))
                     {
+                        
                         ourPlant.talk("HUEUEUEUEUE");
                         ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
                         Bb.readBoard();
                         break;
                     }
                 }
-                if (ourPlant.RadiatesLeft > 0)
+
+                if(ourPlant.RadiatesLeft > 0)
                 {
                     foreach (var theirPlantPoint in Bb.allTheirPlants.Where(p => p.GetPlant().Rads < p.GetPlant().MaxRads))
                     {
                         if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range))
                         {
-                            ourPlant.talk("CHORTLE");
+                            if(rand.Next(10) > 8)
+                            {
+                                ourPlant.talk("CHORTLE");
+                            }
                             ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
                             Bb.readBoard();
                             break;
