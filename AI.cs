@@ -81,7 +81,7 @@ public class AI : BaseAI
 
         foreach (var chokerPoint in Bb.ourChokers)
         {
-            var endMovePoint = Solver.FindPointsInCirclesNearestTargets(1, chokerPoint.GetPlant().ToCircle().Single(), Bb.allTheirPlants, new Circle[]{});
+            var endMovePoint = Solver.FindPointsInCirclesNearestTargets(1, chokerPoint.GetPlant().ToCircle().Single(), /*Bb.allTheirPlants*/ Bb.theirMother, new Circle[]{});
             if (endMovePoint.Any())
             {
                 var p = endMovePoint.First();
@@ -100,13 +100,25 @@ public class AI : BaseAI
             var ourPlant = ourPlantPoint.GetPlant();
             if (ourPlant.RadiatesLeft > 0)
             {
-                foreach (var theirPlantPoint in Bb.allTheirPlants.Where(p => p.GetPlant().Rads < p.GetPlant().MaxRads))
+                foreach (var theirPlantPoint in Bb.allTheirPlants.Where(p => p.GetPlant().Rads < p.GetPlant().MaxRads && p.GetPlant().Mutation == MOTHER))
                 {
-                    if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range))
+                    if(Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range))
                     {
                         ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
                         Bb.readBoard();
                         break;
+                    }
+                }
+                if(ourPlant.RadiatesLeft > 0)
+                {
+                    foreach (var theirPlantPoint in Bb.allTheirPlants.Where(p => p.GetPlant().Rads < p.GetPlant().MaxRads))
+                    {
+                        if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range))
+                        {
+                            ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
+                            Bb.readBoard();
+                            break;
+                        }
                     }
                 }
             }
