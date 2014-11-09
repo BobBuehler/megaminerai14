@@ -77,17 +77,18 @@ public class AI : BaseAI
             {
                 Solver.Spawn(TITAN, ourMother, 50);
             }
-            // Get 3 defensive Aralia
-            if (Bb.ourAralias.Where(a => Trig.Distance(a, ourMother) <= 200).Count() < 3)
+            // Get 4 defensive Aralia
+            if (Bb.ourAralias.Where(a => Trig.Distance(a, ourMother) <= 200).Count() < 4)
             {
                 Solver.Spawn(ARALIA, ourMother, 100);
             }
         }
 
-        // Build offensive if they are killing our lead or mother in range
+        // Build offensive if they are killing our lead or their mother is in range, but only when clumpable
+        var canClump = me.Spores > (AI.sporeCosts[ARALIA] * 6);
         var inRange = Bb.ourSpawners.Any(s => Trig.IsInRange(s, Bb.theirMother.First(), 200));
         var leadKilled = leadSpawner.x != -1 && !Bb.plantLookup.ContainsKey(leadSpawner);
-        if (inRange || leadKilled)
+        if (canClump && (inRange || leadKilled))
         {
             while (me.Spores > sporeCosts[ARALIA])
             {
