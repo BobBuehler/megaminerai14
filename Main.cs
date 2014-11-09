@@ -8,12 +8,13 @@ public class Program
     {
         if (args.Length < 1)
         {
-            var p = Solver.FindPointInCirclesNearestTargets(
+            var ps = Solver.FindPointsInCirclesNearestTargets(
+                3,
                 new Circle[] { new Circle(3, 3, 3)},
                 new Point[] { new Point(10, 5)},
                 new Circle[] { }
                 );
-            Console.WriteLine(p);
+            ps.ForEach(p => Console.WriteLine(p));
 
             System.Console.WriteLine("Please enter a hostname");
             return;
