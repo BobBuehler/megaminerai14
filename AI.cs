@@ -73,9 +73,6 @@ public class AI : BaseAI
 
         Bb.readBoard();
 
-        Console.WriteLine("Germinated: ");
-        germinateLocations.ForEach(p => Console.WriteLine("  " + p));
-
         //Step 3: Move
             //Move plants in groups
             //Move soakers in pools (needing more strength) closer to the allies by the pool so the soaker is in range
