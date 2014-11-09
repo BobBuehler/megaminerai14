@@ -78,13 +78,13 @@ public class AI : BaseAI
 
         var toSpawn = new LinkedList<int>(new int[] { Bb.ARALIA, Bb.ARALIA, Bb.ARALIA, Bb.ARALIA });
 
-        if (Bb.allTheirPlants.Any(pl => Trig.IsInRange(pl, Bb.ourMother.First(), plantRanges[MOTHER] + plantRanges[ARALIA])))
-        {
-            toSpawn.AddFirst(Bb.TITAN);
-        }
         if (!Bb.ourSpawners.Any(sp => Trig.IsInRange(sp, Bb.theirMother.First(), plantRanges[SPAWNER] + plantRanges[CHOKER])))
         {
             toSpawn.AddFirst(Bb.SPAWNER);
+        }
+        if (Bb.ourTitans.Count < 3 && Bb.allTheirPlants.Any(pl => Trig.IsInRange(pl, Bb.ourMother.First(), plantRanges[MOTHER] + plantRanges[ARALIA])))
+        {
+            toSpawn.AddFirst(Bb.TITAN);
         }
         
         foreach (var plantType in toSpawn)
@@ -96,6 +96,8 @@ public class AI : BaseAI
                     Solver.Spawn(plantType, Bb.theirMother.First(), 75 + 40, false);
                     break;
                 case TITAN:
+                    Solver.Spawn(plantType, Bb.ourMother.First(), 200);
+                    break;
                 default:
                     Solver.Spawn(plantType, Bb.theirMother.First(), 50);
                     break;
@@ -111,6 +113,11 @@ public class AI : BaseAI
         //Check enemy range to move out of range (if desired i.e. soakers to another part of the pool that is outside enemy range)
         //Keep titans out of enemy attack range but in titan debuff range for the enemies
 
+        foreach (var t in Bb.ourTitans)
+        {
+            Solver.DefendMother(t, Bb.allTheirPlants);
+        }
+        Bb.readBoard();
         foreach (var p in Bb.allOurPlants)
         {
             Solver.Uproot(p, Bb.theirMother.First(), p.GetPlant().Range);

@@ -55,10 +55,12 @@ public static class Solver
 
         var astar = new Pather.AStar(
             starts,
-            p => Trig.IsInRange(p, goal, goalRange),
+            p => Trig.IsInRange(p, goal, goalRange) && IsPassable(p, avoidPools),
             (a, b) => 1,
             p => (int)Math.Ceiling(Trig.Distance(p, goal) / (double)uprootRange),
             getNeighboors);
+        if (plantType == AI.TITAN)
+            Console.WriteLine("TITAN " + astar.Path.Count);
         if (astar.Path.Count() > 1)
         {
             var p = astar.Path.ElementAt(1);
