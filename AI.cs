@@ -86,8 +86,8 @@ public class AI : BaseAI
         }
         if (Bb.ourTitans.Count < 3 && Bb.allTheirPlants.Any(pl => Trig.IsInRange(pl, Bb.ourMother.First(), plantRanges[MOTHER] + plantRanges[ARALIA])))
         {
-            toSpawn.AddFirst(Bb.ARALIA);
             toSpawn.AddFirst(Bb.TITAN);
+            toSpawn.AddFirst(Bb.ARALIA);
         }
         Console.WriteLine("In toSpawn: ");
         while (toSpawn.Count > 0)
@@ -159,8 +159,6 @@ public class AI : BaseAI
                 {
                     if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range))
                     {
-                        
-                        ourPlant.talk("HUEUEUEUEUE");
                         ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
                         Bb.readBoard();
                         break;
@@ -173,10 +171,6 @@ public class AI : BaseAI
                     {
                         if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range) && theirPlantPoint.GetPlant().Mutation != SPAWNER)
                         {
-                            if(rand.Next(10) > 8)
-                            {
-                                ourPlant.talk("CHORTLE");
-                            }
                             ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
                             Bb.readBoard();
                             break;
@@ -184,16 +178,12 @@ public class AI : BaseAI
                     }
                 }
 
-                if(ourPlant.RadiatesLeft > 0)
+                if(ourPlant.RadiatesLeft > 0 && ourPlant.Mutation != ARALIA)
                 {
                     foreach (var theirPlantPoint in Bb.allTheirPlants.Where(p => p.GetPlant().Rads < p.GetPlant().MaxRads))
                     {
                         if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range))
                         {
-                            if(rand.Next(10) > 8)
-                            {
-                                ourPlant.talk("CHORTLE");
-                            }
                             ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
                             Bb.readBoard();
                             break;

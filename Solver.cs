@@ -59,8 +59,6 @@ public static class Solver
             (a, b) => 1,
             p => (int)Math.Ceiling(Trig.Distance(p, goal) / (double)uprootRange),
             getNeighboors);
-        if (plantType == AI.TITAN)
-            Console.WriteLine("TITAN " + astar.Path.Count);
         if (astar.Path.Count() > 1)
         {
             var p = astar.Path.ElementAt(1);
