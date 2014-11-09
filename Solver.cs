@@ -150,7 +150,7 @@ public static class Solver
                 }
                 if (plant.UprootsLeft > 0)
                 {
-                    var dest = Trig.CalcPointsInCircle(plant.ToUprootCircle()).MaxByValue(d => targets.Count(t => Trig.Distance(d, t) <= plant.Range));
+                    var dest = Trig.CalcPointsInCircle(plant.ToUprootCircle()).Where(p => IsPassable(p)).MaxByValue(d => targets.Count(t => Trig.Distance(d, t) <= plant.Range));
                     if (!dest.Equals(defender))
                     {
                         plant.uproot(dest.x, dest.y);
