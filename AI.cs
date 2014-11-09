@@ -63,12 +63,22 @@ public class AI : BaseAI
         //Check pool locations to see if and where the ally plants are and place soakers in the pool but in range of the allies
         
         var spawnCount = mySpores / 10; // Choker cost
-        var spawnableCircles = Bb.ourMother.Concat(Bb.ourSpawners).Select(m => new Circle(m, Bb.plantLookup[m].Range));
+        var spawnableCircles = Bb.ourMother.Concat(Bb.ourSpawners).Select(m => new Circle(m, m.GetPlant().Range));
         var targets = Bb.theirMother;
-        var avoidCircles = Bb.pools.Select(p => p.ToCircle(p.GetPlant().Range));
-        avoidCircles.Concat(plants.Select(pl => new Circle(new Point(pl.X, pl.Y), 0)));
+        var avoidCircles = Bb.pools.Select(p => p.ToCircle(p.GetPlant().Range))
+            .Concat(plants.Select(pl => new Circle(new Point(pl.X, pl.Y), 0)));
         var germinateLocations = Solver.FindPointsInCirclesNearestTargets(spawnCount, spawnableCircles, targets, avoidCircles);
         germinateLocations.ForEach(p => me.germinate(p.x, p.y, CHOKER));
+
+        Console.WriteLine("GERMINATES: ");
+        foreach (var g in germinateLocations)
+        {
+            Plant p;
+            if (Bb.plantLookup.TryGetValue(g, out p))
+                Console.WriteLine("{0} {1}", g, g.GetPlant().Mutation);
+            if ((p = getPlantAt(g.x, g.y)) != null)
+                Console.WriteLine("{0} {1}", g, p.Mutation);
+        }
 
         Bb.readBoard();
 

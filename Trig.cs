@@ -8,13 +8,12 @@ public static class Trig
     public static Func<Point, int> CalcMagnitude = _calcMagnitude.Memoize();
 
     private static Func<int, IEnumerable<Point>> _calcInnerEdge = r => {
-        double maxY = .7072 * r;
-        double rSquare = r * r;
-        List<Point> halfQuad = new List<Point>((int)maxY);
-        for (double y = 0; y <= maxY; ++y)
+        var rSquare = r * r;
+        List<Point> halfQuad = new List<Point>();
+        for (double y = 0; y <= r; y += .5)
         {
-            var x = Math.Sqrt(rSquare - y * y);
-            halfQuad.Add(new Point((int)x, (int)y));
+            var x = Math.Ceiling(Math.Sqrt(rSquare - y * y));
+            halfQuad.Add(new Point((int)x, (int)Math.Ceiling(y)));
         }
         return halfQuad.SelectMany(p => {
             return new Point[] {
@@ -38,13 +37,12 @@ public static class Trig
 
     private static Func<int, IEnumerable<Point>> _calcOuterEdge = r =>
     {
-        double maxY = .7072 * r;
         double rSquare = r * r;
-        List<Point> halfQuad = new List<Point>((int)maxY);
-        for (double y = 0; y <= maxY; ++y)
+        List<Point> halfQuad = new List<Point>();
+        for (double y = 0; y <= r; y += 0.25)
         {
-            var x = Math.Sqrt(rSquare - y * y);
-            halfQuad.Add(new Point((int)x + 1, (int)y));
+            var x = Math.Ceiling(Math.Sqrt(rSquare - y * y));
+            halfQuad.Add(new Point((int)x + 1, (int)Math.Ceiling(y)));
         }
         return halfQuad.SelectMany(p =>
         {
@@ -79,22 +77,23 @@ public static class Trig
 
     public static bool IsInRange(int x1, int y1, int x2, int y2, int range)
     {
-        return Distance(x1, y1, x2, y2) < range;
+        return Distance(x1, y1, x2, y2) <= range;
     }
 
     public static bool IsInRange(Point p1, Point p2, int range)
     {
-        return Distance(p1, p2) < range;
+        return IsInRange(p1.x, p1.y, p2.x, p2.y, range);
     }
 
     public static IEnumerable<Point> PointsInRect(int minX, int maxX, int minY, int maxY)
     {
         // Bound
+        /*
         if (minX < 0) minX = 0;
         if (maxX >= Bb.Width) maxX = Bb.Width - 1;
         if (minY < 0) minY = 0;
         if (maxY >= Bb.Height) maxY = Bb.Height - 1;
-
+        */
         for (int x = minX; x <= maxX; x++)
         {
             for (int y = minY; y <= maxY; y++)

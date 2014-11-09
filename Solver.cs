@@ -14,14 +14,13 @@ public static class Solver
         var startablePoints = starts.SelectMany(c => Trig.CalcPointsInCircle(c));
         var avoidPoints = avoids.SelectMany(c => Trig.CalcPointsInCircle(c));
 
-        var avoidEdgedStarts = avoids.SelectMany(c => Trig.CalcOuterEdgeOfCircle(c));
-        avoidEdgedStarts.Intersect(startablePoints);
+        var avoidEdgedStarts = avoids.SelectMany(c => Trig.CalcOuterEdgeOfCircle(c))
+            .Intersect(startablePoints);
 
-        var potentialStarts = starts.SelectMany(c => Trig.CalcInnerEdgeOfCircle(c));
-        potentialStarts.Union(avoidEdgedStarts);
+        var potentialStarts = starts.SelectMany(c => Trig.CalcInnerEdgeOfCircle(c))
+            .Union(avoidEdgedStarts)
+            .Except(avoidPoints);
 
-        potentialStarts.Except(avoidPoints);
-
-        return potentialStarts.Distinct().MinByValue(pointCount, p => targets.Min(t => Trig.Distance(p, t)));
+        return potentialStarts.Where(p => p.IsOnBoard()).Distinct().MinByValue(pointCount, p => targets.Min(t => Trig.Distance(p, t)));
     }
 }
