@@ -119,7 +119,37 @@ public class AI : BaseAI
 
     public void DoRadiate()
     {
+        Bb.readBoard();
+        var theirMother = Bb.theirMother.First();
+        var heavyDefense = Bb.theirTitans.Concat(Bb.theirAralias).Count(p => Trig.IsInRange(p, theirMother, 200)) > 4;
+        foreach (var plant in Bb.allOurPlants.Select(p => p.GetPlant()).Where(p => p.RadiatesLeft > 0))
+        {
+            var targetsInRange = Bb.allTheirPlants.Where(t => Trig.IsInRange(plant.ToPoint(), t, plant.Range))
+                .Select(t => t.GetPlant()).Where(t => t.Rads < t.MaxRads).ToArray();
 
+            var motherInRange = plant.ToRangeCircle().IsInRange(theirMother);
+            if (motherInRange && heavyDefense)
+            {
+                plant.radiate(theirMother.x, theirMother.y);
+                plant.talk("Your mother.");
+            }
+            else if (targetsInRange.Any(t => t.Mutation == TITAN))
+            {
+                var titan = targetsInRange.First(t => t.Mutation == TITAN);
+                plant.radiate(titan.X, titan.Y);
+            }
+            else if (motherInRange)
+            {
+                plant.radiate(theirMother.x, theirMother.y);
+            }
+            else if (targetsInRange.Any())
+            {
+                var t = targetsInRange.First();
+                plant.radiate(t.X, t.Y);
+                plant.talk("pew pew I guess");
+            }
+            Bb.readBoard();
+        }
     }
 
     /// <summary>
@@ -154,11 +184,13 @@ public class AI : BaseAI
 
         DoMove();
 
+        DoRadiate();
+
         //Step 4: Radiate
         //All soakers buff teammates in range
         //All chokers attack (priority nearest our mother)
         //Titans debuff cause yeah
-
+        /*
         Bb.readBoard();
         foreach (var ourPlantPoint in Bb.allOurPlants)
         {
@@ -215,6 +247,7 @@ public class AI : BaseAI
                 }
             }
         }
+         * */
 
         sw.Stop();
         Console.WriteLine("Turn {0} done in {1}s", turnNumber(), sw.Elapsed);
