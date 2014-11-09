@@ -106,6 +106,11 @@ public class AI : BaseAI
     public void DoMove()
     {
         Bb.readBoard();
+        var midX = Bb.Width / 2;
+        if (!Bb.allTheirPlants.Any(p => me.Id == 0 ? p.x < midX : p.x > midX))
+        {
+            Bb.ourAralias.Skip(4).ForEach(a => Solver.Uproot(a, Bb.theirMother.First(), a.GetPlant().Range));
+        }
         foreach (var d in Bb.ourTitans.Concat(Bb.ourAralias.Where(a => Trig.IsInRange(a, Bb.ourMother.First(), 200))))
         {
             Solver.DefendMother(d, Bb.theirAralias.Concat(Bb.theirChokers).Where(p => p.GetPlant().Rads < p.GetPlant().MaxRads));
@@ -250,7 +255,11 @@ public class AI : BaseAI
          * */
 
         sw.Stop();
-        Console.WriteLine("Turn {0} done in {1}s", turnNumber(), sw.Elapsed);
+        Console.WriteLine("[{0}] {1} x {2} - {3}s",
+            turnNumber(),
+            Bb.ourMother.First().GetPlant().Rads,
+            Bb.theirMother.First().GetPlant().Rads,
+            sw.Elapsed);
 
         return true;
     }
