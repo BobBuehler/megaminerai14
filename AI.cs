@@ -86,6 +86,7 @@ public class AI : BaseAI
         }
         if (Bb.ourTitans.Count < 3 && Bb.allTheirPlants.Any(pl => Trig.IsInRange(pl, Bb.ourMother.First(), plantRanges[MOTHER] + plantRanges[ARALIA])))
         {
+            toSpawn.AddFirst(Bb.ARALIA);
             toSpawn.AddFirst(Bb.TITAN);
         }
         Console.WriteLine("In toSpawn: ");
@@ -163,6 +164,23 @@ public class AI : BaseAI
                         ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
                         Bb.readBoard();
                         break;
+                    }
+                }
+
+                if(ourPlant.RadiatesLeft > 0 && ourPlant.Mutation == ARALIA)
+                {
+                    foreach (var theirPlantPoint in Bb.allTheirPlants.Where(p => p.GetPlant().Rads < p.GetPlant().MaxRads))
+                    {
+                        if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range) && theirPlantPoint.GetPlant().Mutation != SPAWNER)
+                        {
+                            if(rand.Next(10) > 8)
+                            {
+                                ourPlant.talk("CHORTLE");
+                            }
+                            ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
+                            Bb.readBoard();
+                            break;
+                        }
                     }
                 }
 
