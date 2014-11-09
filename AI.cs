@@ -62,6 +62,7 @@ public class AI : BaseAI
 
     public static Random rand = new Random();
 
+    public static LinkedList<int> toSpawn = new LinkedList<int>(new int[] { Bb.ARALIA, Bb.ARALIA, Bb.ARALIA, Bb.ARALIA});
     /// <summary>
     /// This function is called each time it is your turn.
     /// </summary>
@@ -93,13 +94,19 @@ public class AI : BaseAI
             switch(plantType)
             {
                 case SPAWNER:
-                    Solver.Spawn(plantType, Bb.theirMother.First(), 75 + 40, false);
+                    if(Bb.allTheirPlants.Any(ts => Bb.ourSpawners.Any(os => Trig.IsInRange(ts, os, 180))))
+                    {
+                        Solver.Spawn(plantType, Bb.theirMother.First(), 75 + 40);
+                    }
+                    else
+                        Solver.Spawn(plantType, Bb.theirMother.First(), 75 + 40, false);
                     break;
                 case TITAN:
                     Solver.Spawn(plantType, Bb.ourMother.First(), 200);
                     break;
                 default:
                     Solver.Spawn(plantType, Bb.theirMother.First(), 50);
+                    toSpawn.RemoveFirst();
                     break;
 
             }
