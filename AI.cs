@@ -73,6 +73,9 @@ public class AI : BaseAI
 
         Bb.readBoard();
 
+        Console.WriteLine("Germinated: ");
+        germinateLocations.ForEach(p => Console.WriteLine("  " + p));
+
         //Step 3: Move
             //Move plants in groups
             //Move soakers in pools (needing more strength) closer to the allies by the pool so the soaker is in range
@@ -106,12 +109,16 @@ public class AI : BaseAI
                     if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range))
                     {
                         ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
+                        continue;
                         Bb.readBoard();
                         ourPlant.talk("HUEHUEHUE");
                     }
                 }
+                break;
             }
         }
+
+        Console.WriteLine("DONE");
 
         return true;
     }
