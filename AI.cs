@@ -90,10 +90,11 @@ public class AI : BaseAI
         var spawnableCircles = Bb.ourMother.Concat(Bb.ourSpawners).Select(m => m.GetPlant().ToRangeCircle());
         var targets = Bb.theirMother;
         var avoidCircles = Bb.pools.Select(p => p.GetPlant().ToRangeCircle()).Concat(plants.Select(pl => pl.ToUnitCircle()));
-        var chokerGerminateLocations = Solver.FindPointsInCirclesNearestTargets(chokerSpawnCount, spawnableCircles, targets, avoidCircles);
         var spawnerGerminateLocations = Solver.FindPointsInCirclesNearestTargets(spawnerSpawnCount, spawnableCircles, targets, avoidCircles);
-        chokerGerminateLocations.ForEach(p => me.germinate(p.x, p.y, CHOKER));
+        var chokerGerminateLocations = Solver.FindPointsInCirclesNearestTargets(chokerSpawnCount, spawnableCircles, targets, avoidCircles.Concat(spawnerGerminateLocations.Select(p => p.ToCircle(0))));
+        
         spawnerGerminateLocations.ForEach(p => me.germinate(p.x, p.y, SPAWNER));
+        chokerGerminateLocations.ForEach(p => me.germinate(p.x, p.y, CHOKER));
 
         Bb.readBoard();
 
@@ -106,7 +107,7 @@ public class AI : BaseAI
 
         foreach (var chokerPoint in Bb.ourChokers)
         {
-            avoidCircles = Bb.pools.Select(p => p.GetPlant().ToRangeCircle()).Concat(plants.Select(pl => pl.ToUnitCircle())).Concat(germinateLocations.Select(p => p.ToCircle(0)));
+            avoidCircles = Bb.pools.Select(p => p.GetPlant().ToRangeCircle()).Concat(plants.Select(pl => pl.ToUnitCircle())).Concat(chokerGerminateLocations.Select(p => p.ToCircle(0)));
             var endMovePoint = Solver.FindPointsInCirclesNearestTargets(1, chokerPoint.GetPlant().ToUprootCircle().Single(), /*Bb.allTheirPlants*/ Bb.theirMother, avoidCircles);
             if (endMovePoint.Any())
             {
