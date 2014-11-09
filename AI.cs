@@ -29,6 +29,16 @@ public class AI : BaseAI
         {TITAN, 24}
     };
 
+    public static Dictionary<int, int> plantRanges = new Dictionary<int, int>(){
+        {MOTHER, 150},
+        {SPAWNER, 75},
+        {CHOKER, 40},
+        {SOAKER, 20},
+        {BUMBLEWEED, 30},
+        {ARALIA, 60},
+        {TITAN, 70}
+    };
+
     public static int[] uprootRanges = new int[] {
         0,
         0,
@@ -50,6 +60,8 @@ public class AI : BaseAI
         return "password";
     }
 
+    public static Random rand = new Random();
+
     /// <summary>
     /// This function is called each time it is your turn.
     /// </summary>
@@ -63,12 +75,10 @@ public class AI : BaseAI
         Bb.newTurn();
         Bb.readBoard();
         Solver.PreCalc();
-        HashSet<Point> endMoveLocations = new HashSet<Point>();
-        HashSet<Point> attackLocations = new HashSet<Point>();
 
         var toSpawn = new LinkedList<int>(new int[] { Bb.ARALIA, Bb.ARALIA, Bb.ARALIA, Bb.ARALIA });
 
-        if (!Bb.ourSpawners.Any(sp => Trig.IsInRange(sp, Bb.theirMother.First(), 75 + 40)))
+        if (!Bb.ourSpawners.Any(sp => Trig.IsInRange(sp, Bb.theirMother.First(), plantRanges[SPAWNER] + plantRanges[CHOKER])))
         {
             toSpawn.AddFirst(Bb.SPAWNER);
         }
@@ -117,19 +127,24 @@ public class AI : BaseAI
                 {
                     if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range))
                     {
+                        
                         ourPlant.talk("HUEUEUEUEUE");
                         ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
                         Bb.readBoard();
                         break;
                     }
                 }
-                if (ourPlant.RadiatesLeft > 0)
+
+                if(ourPlant.RadiatesLeft > 0)
                 {
                     foreach (var theirPlantPoint in Bb.allTheirPlants.Where(p => p.GetPlant().Rads < p.GetPlant().MaxRads))
                     {
                         if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range))
                         {
-                            ourPlant.talk("CHORTLE");
+                            if(rand.Next(10) > 8)
+                            {
+                                ourPlant.talk("CHORTLE");
+                            }
                             ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
                             Bb.readBoard();
                             break;
