@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 
@@ -41,6 +42,9 @@ public class AI : BaseAI
         //Step 1: Initialization
         Bb.readBoard();
         int mySpores = me.Spores;
+        HashSet<Point> germinateLocations = new HashSet<Point>();
+        HashSet<Point> endMoveLocations = new HashSet<Point>();
+        HashSet<Point> attackLocations = new HashSet<Point>();
 
         //Step 2: Spawn Stuff
             //What to spawn:
@@ -59,6 +63,16 @@ public class AI : BaseAI
                         //We are winning:
                             //KILL THEM
         //Check pool locations to see if and where the ally plants are and place soakers in the pool but in range of the allies
+        
+        var spawnCount = mySpores / 10; // Choker cost
+        var spawnableCircles = Bb.ourMother.Concat(Bb.ourSpawners).Select(m => new Circle(m, Bb.plantLookup[m].Range));
+        var targets = Bb.theirMother;
+        var avoidCircles = Bb.pools.Select(p => p.ToCircle(Bb.plantLookup[p].Range));
+        avoidCircles.Concat(plants.Select(pl => new Circle(new Point(pl.X, pl.Y), 0)));
+        var germinateLocations = Solver.FindPointsInCirclesNearestTargets(spawnCount, spawnableCircles, targets, avoidCircles);
+        germinateLocations.ForEach(p => me.germinate(p.x, p.y, CHOKER));
+
+        Bb.readBoard();
 
         //Step 3: Move
             //Move plants in groups
@@ -67,10 +81,36 @@ public class AI : BaseAI
             //Check enemy range to move out of range (if desired i.e. soakers to another part of the pool that is outside enemy range)
             //Keep titans out of enemy attack range but in titan debuff range for the enemies
 
+        foreach (var chokerPoint in Bb.ourChokers)
+        {
+            var endMovePoint = Solver.FindPointInCircleNearestTarget(c, p);
+            endMoveLocations.Add(endMovePoint);
+            Plant choker = getPlantAt(chokerPoint.x, chokerPoint.y);
+            choker.uproot(endMovePoint.x, endMovePoint.y);
+        }
+
         //Step 4: Radiate
             //All soakers buff teammates in range
             //All chokers attack (priority nearest our mother)
             //Titans debuff cause yeah
+
+        foreach (var ourPlantPoint in Bb.allOurPlants)
+        {
+            var ourPlant = getPlantAt(ourPlantPoint.x, ourPlantPoint.y);
+            foreach (var theirPlantPoint in Bb.allTheirPlants)
+            {
+                if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, getPlantAt(ourPlantPoint.x, ourPlantPoint.y).Range))
+                {
+                    var theirPlant = getPlantAt(theirPlantPoint.x, theirPlantPoint.y);
+                    if (theirPlant != null && ourPlant.RadiatesLeft > 0)
+                    {
+                        ourPlant.radiate(theirPlant.X, theirPlant.Y);
+                        ourPlant.talk("HUEHUEHUE");
+                    }
+                }
+            }
+        }
+
         return true;
     }
 
