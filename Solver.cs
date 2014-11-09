@@ -39,9 +39,9 @@ public static class Solver
         return p.IsOnBoard() && !Bb.plantLookup.ContainsKey(p) && !Bb.spawning.Contains(p) && !(avoidPools && poolPoints.Contains(p));
     }
 
-    public static bool Spawn(int plantType, Point goal, int goalRange, bool avoidPools = true)
+    public static Point Spawn(int plantType, Point goal, int goalRange, bool avoidPools = true)
     {
-        if (AI.me.Spores < AI.sporeCosts[plantType]) return false;
+        if (AI.me.Spores < AI.sporeCosts[plantType]) return new Point(-1, -1);
 
         var uprootRange = Bb.GetUprootRange(plantType);
         var starts = Bb.ourMother.Concat(Bb.ourSpawners);
@@ -67,9 +67,9 @@ public static class Solver
             var p = astar.Path.ElementAt(1);
             AI.me.germinate(p.x, p.y, plantType);
             Bb.spawning.Add(p);
-            return true;
+            return p;
         }
-        return false;
+        return new Point(-1, -1);
     }
 
     public static bool Uproot(Point mover, Point goal, int goalRange, bool avoidPools = true)

@@ -62,6 +62,67 @@ public class AI : BaseAI
 
     public static Random rand = new Random();
     public static LinkedList<int> toSpawn = new LinkedList<int>(new int[] {});
+    private static Point leadSpawner;
+
+    public void DoSpawn()
+    {
+        // Build 2 defensive Aralia if
+        //   They are within 200 of our mother
+        // Go kill stuff if
+        //   They're killing our lead spawner
+        //   We have a spawner in their base
+        // Build spawner on the way to their base
+
+
+        // Build defensive if
+        //   They are on our half of the screen
+        var ourMother = Bb.ourMother.First();
+        var midX = Bb.Width / 2;
+        if (Bb.allTheirPlants.Any(p => me.Id == 0 ? p.x < midX : p.x > midX))
+        {
+            if (Bb.theirChokers.Count > Bb.theirAralias.Count)
+            {
+                // Get one defensive Titan
+                if (Bb.ourTitans.Count == 0)
+                {
+                    Solver.Spawn(TITAN, ourMother, 50);
+                }
+            }
+            // Get 3 defensive Aralia
+            if (Bb.ourAralias.Where(a => Trig.Distance(a, ourMother) <= 200).Count() < 3)
+            {
+                Solver.Spawn(ARALIA, ourMother, 100);
+            }
+        }
+
+        // Build offensive if they are killing our lead or mother in rang
+        var inRange = Bb.ourSpawners.Any(s => Trig.IsInRange(s, Bb.theirMother.First(), 200));
+        var leadKilled = leadSpawner.x != -1 && !Bb.plantLookup.ContainsKey(leadSpawner);
+        if (inRange || leadKilled)
+        {
+            while (me.Spores > sporeCosts[ARALIA])
+            {
+                Solver.Spawn(ARALIA, Bb.theirMother.First(), 200, false);
+            }
+        }
+
+        if (!inRange)
+            leadSpawner = Solver.Spawn(SPAWNER, Bb.theirMother.First(), 200);
+    }
+
+    /// <summary>
+    /// This function is called once, before your first turn.
+    /// </summary>
+    public override void init()
+    {
+        //set up me field
+        me = players[playerID()];
+        //set up mother field
+
+        Bb.init(this);
+
+        Trig.CalcPointsInCircle(new Circle(0, 0, 300));
+    }
 
     /// <summary>
     /// This function is called each time it is your turn.
@@ -76,66 +137,19 @@ public class AI : BaseAI
         Bb.newTurn();
         Bb.readBoard();
         Solver.PreCalc();
-        if (Bb.allTheirPlants.Any(ts => Bb.ourSpawners.Any(os => Trig.IsInRange(ts, os, 180))))
-        {
-            toSpawn.AddFirst(Bb.ARALIA);
-        }
-        if (!Bb.ourSpawners.Any(sp => Trig.IsInRange(sp, Bb.theirMother.First(), plantRanges[SPAWNER] + plantRanges[CHOKER])))
-        {
-            toSpawn.AddFirst(Bb.SPAWNER);
-        }
-        if (Bb.ourTitans.Count < 3 && Bb.allTheirPlants.Any(pl => Trig.IsInRange(pl, Bb.ourMother.First(), plantRanges[MOTHER] + plantRanges[ARALIA])))
-        {
-            toSpawn.AddFirst(Bb.TITAN);
-            toSpawn.AddFirst(Bb.ARALIA);
-        }
-        Console.WriteLine("In toSpawn: ");
-        while (toSpawn.Count > 0)
-        {
-            Console.WriteLine(toSpawn.First.Value + ", ");
-            Bb.readBoard();
-            int plantType = toSpawn.First.Value;
-            if (me.Spores > sporeCosts[plantType])
-            {
-                switch (plantType)
-                {
-                    case SPAWNER:
-                        if (Bb.allTheirPlants.Any(ts => Bb.ourSpawners.Any(os => Trig.IsInRange(ts, os, 180))))
-                        {
-                            Solver.Spawn(plantType, Bb.theirMother.First(), 75 + 40);
-                        }
-                        else
-                        {
-                            Solver.Spawn(plantType, Bb.theirMother.First(), 75 + 40, false);
-                        }
-                        toSpawn.RemoveFirst();
-                        break;
-                    case TITAN:
-                        Solver.Spawn(plantType, Bb.ourMother.First(), 200);
-                        toSpawn.RemoveFirst();
-                        break;
-                    default:
-                        Solver.Spawn(plantType, Bb.theirMother.First(), 50);
-                        toSpawn.RemoveFirst();
-                        break;
 
-                }
-            }
-            else
-                break;
-        }
-
-
+        DoSpawn();
+        
         //Step 3: Move
         //Move plants in groups
         //Move soakers in pools (needing more strength) closer to the allies by the pool so the soaker is in range
         //Chokers should just always move towards the mother (attack while passing by)
         //Check enemy range to move out of range (if desired i.e. soakers to another part of the pool that is outside enemy range)
         //Keep titans out of enemy attack range but in titan debuff range for the enemies
-
-        foreach (var t in Bb.ourTitans)
+        Bb.readBoard();
+        foreach (var d in Bb.ourTitans.Concat(Bb.ourAralias.Where(a => Trig.IsInRange(a, Bb.ourMother.First(), 200))))
         {
-            Solver.DefendMother(t, Bb.allTheirPlants);
+            Solver.DefendMother(d, Bb.allTheirPlants);
         }
         Bb.readBoard();
         foreach (var p in Bb.allOurPlants)
@@ -197,18 +211,6 @@ public class AI : BaseAI
         Console.WriteLine("Turn {0} done in {1}s", turnNumber(), sw.Elapsed);
 
         return true;
-    }
-
-    /// <summary>
-    /// This function is called once, before your first turn.
-    /// </summary>
-    public override void init()
-    {
-        //set up me field
-        me = players[playerID()];
-        //set up mother field
-
-        Bb.init(this);
     }
 
     /// <summary>
