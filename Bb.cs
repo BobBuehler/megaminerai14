@@ -35,10 +35,9 @@ public static class Bb
     public static HashSet<Point> theirMother;
 
     public static HashSet<Point> pools;
-
-    //Number of Plants
-    public static int allOurPlants;
-    public static int allTheirPlants;
+    public static HashSet<Point> allOurPlants;
+    public static HashSet<Point> allTheirPlants;
+    public static Dictionary<Point, Plant> plantLookup;
     
     public static void init(AI ai)
     {
@@ -62,98 +61,100 @@ public static class Bb
         theirAralias = new HashSet<Point>();
         theirMother = new HashSet<Point>();
         pools = new HashSet<Point>();
-
-        allOurPlants = 0;
-        allTheirPlants = 0;
+        allOurPlants = new HashSet<Point>();
+        allTheirPlants = new HashSet<Point>();
+        plantLookup = new Dictionary<Point, Plant>();
 
         foreach(var plant in BaseAI.plants)
         {
             Point p = new Point(plant.X, plant.Y);
             int type = plant.Mutation;
+            plantLookup[p] = plant;
+
             switch(type)
             {
                 case MOTHER:
                     if (plant.Owner == myPlayer)
                     {
                         ourMother.Add(p);
-                        allOurPlants++;
+                        allOurPlants.Add(p);
                     }
                     else 
                     {
                         theirMother.Add(p);
-                        allTheirPlants++;
+                        allTheirPlants.Add(p);
                     }
                     break;
                 case SPAWNER:
                     if (plant.Owner == myPlayer) 
                     {
                         ourSpawners.Add(p);
-                        allOurPlants++;
+                        allOurPlants.Add(p);
                     } 
                     else 
                     {
                         theirSpawners.Add(p);
-                        allTheirPlants++;
+                        allTheirPlants.Add(p);
                     }
                     break;
                 case CHOKER:
                     if (plant.Owner == myPlayer) 
                     {
                         ourChokers.Add(p);
-                        allOurPlants++;
+                        allOurPlants.Add(p);
                     } 
                     else 
                     {
                         theirChokers.Add(p);
-                        allTheirPlants++;
+                        allTheirPlants.Add(p);
                     }
                     break;
                 case SOAKER:
                     if (plant.Owner == myPlayer)
                     {
                         ourSoakers.Add(p);
-                        allOurPlants++;
+                        allOurPlants.Add(p);
                     }
                     else
                     {
                         theirSoakers.Add(p);
-                        allTheirPlants++;
+                        allTheirPlants.Add(p);
                     }
                     break;
                 case BUMBLEWEED:
                     if (plant.Owner == myPlayer)
                     {
                         ourBumbleweeds.Add(p);
-                        allOurPlants++;
+                        allOurPlants.Add(p);
                     }
                     else
                     {
                         theirBumbleweeds.Add(p);
-                        allTheirPlants++;
+                        allTheirPlants.Add(p);
                     }
                     break;
                 case ARALIA:
                     if (plant.Owner == myPlayer)
                     {
                         ourAralias.Add(p);
-                        allOurPlants++;
+                        allOurPlants.Add(p);
                     }
                     else
                     {
                         theirAralias.Add(p);
-                        allTheirPlants++;
+                        allTheirPlants.Add(p);
                     }
                     break;
                 case TITAN:
                     if (plant.Owner == myPlayer)
                     {
                         ourTitans.Add(p);
-                        allOurPlants++;
+                        allOurPlants.Add(p);
                     }
                     else
                     {
                         theirTitans.Add(p);
-                        allTheirPlants++;
+                        allTheirPlants.Add(p);
                     }
                     break;
                 case POOL:
