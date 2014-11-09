@@ -9,7 +9,7 @@ using System.Collections.Generic;
 /// </summary>
 public class AI : BaseAI
 {
-    static Player me;
+    public static Player me;
     public const int
                MOTHER = 0,
                SPAWNER = 1,
@@ -60,6 +60,7 @@ public class AI : BaseAI
         sw.Start();
 
         //Step 1: Initialization
+        Bb.newTurn();
         Bb.readBoard();
         Solver.PreCalc();
         HashSet<Point> endMoveLocations = new HashSet<Point>();
@@ -74,22 +75,16 @@ public class AI : BaseAI
         
         foreach (var plantType in toSpawn)
         {
-            if (me.Spores < sporeCosts[plantType]) continue;
-
-            Point step;
+            Bb.readBoard();
             switch(plantType)
             {
                 case SPAWNER:
-                    step = Solver.CalcNextStep(Bb.ourSpawners.Concat(Bb.ourMother), Bb.theirMother.First(), 75, 75 + 40);
+                    Solver.Spawn(plantType, Bb.theirMother.First(), 75 + 40);
                     break;
                 default:
-                    step = Solver.CalcNextStep(Bb.ourSpawners.Concat(Bb.ourMother), Bb.theirMother.First(), uprootRanges[plantType], 50);
+                    Solver.Spawn(plantType, Bb.theirMother.First(), 50);
                     break;
 
-            }
-            if (step.x != -1)
-            {
-                me.germinate(step.x, step.y, plantType);
             }
         }
 
@@ -101,15 +96,9 @@ public class AI : BaseAI
         //Check enemy range to move out of range (if desired i.e. soakers to another part of the pool that is outside enemy range)
         //Keep titans out of enemy attack range but in titan debuff range for the enemies
 
-        Bb.readBoard();
-        foreach (var uprooter in Bb.allOurPlants.Select(p => p.GetPlant()).Where(pl => pl.UprootsLeft > 0))
+        foreach (var p in Bb.allOurPlants)
         {
-            var step = Solver.CalcNextStep(new Point(uprooter.X, uprooter.Y), Bb.theirMother.First(), Bb.GetUprootRange(uprooter), uprooter.Range);
-            if (step.x != -1)
-            {
-                uprooter.uproot(step.x, step.y);
-            }
-            Bb.readBoard();
+            Solver.Uproot(p, Bb.theirMother.First(), p.GetPlant().Range);
         }
 
 
@@ -118,6 +107,7 @@ public class AI : BaseAI
         //All chokers attack (priority nearest our mother)
         //Titans debuff cause yeah
 
+        Bb.readBoard();
         foreach (var ourPlantPoint in Bb.allOurPlants)
         {
             var ourPlant = ourPlantPoint.GetPlant();

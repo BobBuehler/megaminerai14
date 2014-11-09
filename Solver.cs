@@ -36,15 +36,59 @@ public static class Solver
 
     public static bool IsPassable(Point p)
     {
-        return p.IsOnBoard() && !Bb.plantLookup.ContainsKey(p) && !poolPoints.Contains(p);
+        return p.IsOnBoard() && !Bb.plantLookup.ContainsKey(p) && !poolPoints.Contains(p) && !Bb.spawning.Contains(p);
     }
 
-    public static Point CalcNextStep(Point start, Point goal, int stepSize, int goalRange)
+    public static bool Spawn(int plantType, Point goal, int goalRange)
     {
-        return CalcNextStep(start.Single(), goal, stepSize, goalRange);
+        if (AI.me.Spores < AI.sporeCosts[plantType]) return false;
+
+        var uprootRange = Bb.GetUprootRange(plantType);
+        var starts = Bb.ourMother.Concat(Bb.ourSpawners);
+        Func<Point, IEnumerable<Point>> getNeighboors = p =>
+        {
+            var stepSize = Bb.plantLookup.ContainsKey(p) ? p.GetPlant().Range : uprootRange;
+            return Trig.CalcInnerEdgeOfCircle(new Circle(p, stepSize))
+                .Concat(poolEdges)
+                .Concat(nearEnemies)
+                .Where(n => Trig.IsInRange(p, n, stepSize) && IsPassable(n));
+        };
+
+        var astar = new Pather.AStar(
+            starts,
+            p => Trig.IsInRange(p, goal, goalRange),
+            (a, b) => 1,
+            p => Trig.Distance(p, goal) / uprootRange,
+            getNeighboors);
+        if (astar.Path.Count() > 1)
+        {
+            var p = astar.Path.ElementAt(1);
+            AI.me.germinate(p.x, p.y, plantType);
+            Bb.spawning.Add(p);
+            return true;
+        }
+        return false;
     }
 
-    public static Point CalcNextStep(IEnumerable<Point> starts, Point goal, int stepSize, int goalRange)
+    public static bool Uproot(Point mover, Point goal, int goalRange)
+    {
+        if (mover.GetPlant().UprootsLeft <= 0)
+        {
+            return false;
+        }
+        Bb.readBoard();
+        var plant = mover.GetPlant();
+        var path = CalcPath(mover.Single(), Bb.GetUprootRange(plant), goal, goalRange);
+        if (path.Count() > 1)
+        {
+            var step = path.ElementAt(1);
+            plant.uproot(step.x, step.y);
+            return true;
+        }
+        return false;
+    }
+
+    public static IEnumerable<Point> CalcPath(IEnumerable<Point> starts, int stepSize, Point goal, int goalRange)
     {
         Func<Point, IEnumerable<Point>> getNeighboors = p =>
         {
@@ -57,18 +101,9 @@ public static class Solver
         var astar = new Pather.AStar(
             starts,
             p => Trig.IsInRange(p, goal, goalRange),
-            (a, b) => Trig.IsInRange(a, b, stepSize) ? 1 : 2,
-            p => Trig.Distance(p, goal),
+            (a, b) => 1,
+            p => Trig.Distance(p, goal) / stepSize,
             getNeighboors);
-        var path = astar.Path;
-        if (path.Count() > 1)
-        {
-            var step = path.ElementAt(1);
-            if (IsPassable(step))
-            {
-                return step;
-            }
-        }
-        return new Point(-1, -1);
+        return astar.Path;
     }
 }

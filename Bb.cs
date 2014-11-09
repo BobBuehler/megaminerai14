@@ -18,6 +18,9 @@ public static class Bb
     public static AI ourAI;
     public static int Width = 2048;
     public static int Height = 1024;
+
+    public static HashSet<Point> spawning;
+
     public static HashSet<Point> ourSpawners;
     public static HashSet<Point> ourChokers;
     public static HashSet<Point> ourSoakers;
@@ -43,6 +46,12 @@ public static class Bb
     {
         ourAI = ai;
     }
+
+    public static void newTurn()
+    {
+        spawning = new HashSet<Point>();
+    }
+
     public static void readBoard()
     {
         myPlayer = ourAI.playerID();
@@ -171,6 +180,11 @@ public static class Bb
 
     public static int GetUprootRange(Plant p)
     {
-        return p.Mutation == BUMBLEWEED ? 75 : 50;
+        return GetUprootRange(p.Mutation);
+    }
+
+    public static int GetUprootRange(int type)
+    {
+        return type == BUMBLEWEED ? 75 : 50;
     }
 }

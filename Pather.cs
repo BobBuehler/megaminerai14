@@ -4,21 +4,6 @@ using System.Linq;
 using System.Text;
 public class Pather
 {
-    public static IEnumerable<Point> CalcNeighboors(Point p, Func<Point, bool> isPassable)
-    {
-        var neighboors = new Point[]{
-            new Point(p.x - 1, p.y - 1),
-            new Point(p.x - 1, p.y),
-            new Point(p.x - 1, p.y + 1),
-            new Point(p.x, p.y - 1),
-            new Point(p.x, p.y + 1),
-            new Point(p.x + 1, p.y - 1),
-            new Point(p.x + 1, p.y),
-            new Point(p.x + 1, p.y + 1),
-        };
-        return neighboors.Where(isPassable);
-    }
-
     public class AStar
     {
         public LinkedList<Point> Path;
