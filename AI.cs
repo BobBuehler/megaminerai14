@@ -70,16 +70,6 @@ public class AI : BaseAI
         var germinateLocations = Solver.FindPointsInCirclesNearestTargets(spawnCount, spawnableCircles, targets, avoidCircles);
         germinateLocations.ForEach(p => me.germinate(p.x, p.y, CHOKER));
 
-        Console.WriteLine("GERMINATES: ");
-        foreach (var g in germinateLocations)
-        {
-            Plant p;
-            if (Bb.plantLookup.TryGetValue(g, out p))
-                Console.WriteLine("{0} {1}", g, g.GetPlant().Mutation);
-            if ((p = getPlantAt(g.x, g.y)) != null)
-                Console.WriteLine("{0} {1}", g, p.Mutation);
-        }
-
         Bb.readBoard();
 
         //Step 3: Move
@@ -110,7 +100,7 @@ public class AI : BaseAI
             var ourPlant = ourPlantPoint.GetPlant();
             if (ourPlant.RadiatesLeft > 0)
             {
-                foreach (var theirPlantPoint in Bb.allTheirPlants)
+                foreach (var theirPlantPoint in Bb.allTheirPlants.Where(p => p.GetPlant().Rads < p.GetPlant().MaxRads))
                 {
                     if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range))
                     {
