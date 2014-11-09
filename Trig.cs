@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public static class Trig
 {
-    private static int _edgeRatioCount = 3;
+    private static int _edgeRatioCount = 2;
     private static Func<int, IEnumerable<double>> _calcEdgeRatios = c =>
     {
         var ratios = new double[c];
