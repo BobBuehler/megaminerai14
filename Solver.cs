@@ -113,6 +113,10 @@ public static class Solver
 
     public static void DefendMother(Point defender, IEnumerable<Point> targets)
     {
+        if (!targets.Any() || !Bb.plantLookup.ContainsKey(defender))
+        {
+            return;
+        }
         Bb.readBoard();
         var mother = Bb.ourMother.First();
         var plant = defender.GetPlant();
