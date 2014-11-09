@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public static class Trig
 {
-    private static double[] edgePoints = {0.0, 0.5};
+    private static double[] edgePoints = {0.0, 1.0 / Math.Sqrt(2.0)};
 
     private static Func<Point, int> _calcMagnitude = v => (int)Math.Sqrt(v.x * v.x + v.y * v.y);
     public static Func<Point, int> CalcMagnitude = _calcMagnitude.Memoize();
@@ -15,18 +15,14 @@ public static class Trig
         foreach (double e in edgePoints)
         {
             var y = e * r;
-            var x = Math.Ceiling(Math.Sqrt(rSquare - y * y));
-            halfQuad.Add(new Point((int)x, (int)Math.Ceiling(y)));
+            var x = Math.Sqrt(rSquare - y * y);
+            halfQuad.Add(new Point((int)x, (int)y));
         }
         return halfQuad.SelectMany(p => {
             return new Point[] {
                 p,
-                new Point(p.y, p.x),
-                new Point(-p.x, p.y),
                 new Point(-p.y, p.x),
                 new Point(-p.x, -p.y),
-                new Point(-p.y, -p.x),
-                new Point(p.x, -p.y),
                 new Point(p.y, -p.x),
             };
         }).ToHashSet();
@@ -45,19 +41,15 @@ public static class Trig
         foreach (double e in edgePoints)
         {
             var y = e * r;
-            var x = Math.Ceiling(Math.Sqrt(rSquare - y * y));
-            halfQuad.Add(new Point((int)x + 1, (int)Math.Ceiling(y)));
+            var x = Math.Sqrt(rSquare - y * y);
+            halfQuad.Add(new Point((int)x + 1, (int)y));
         }
         return halfQuad.SelectMany(p =>
         {
             return new Point[] {
                 p,
-                new Point(p.y, p.x),
-                new Point(-p.x, p.y),
                 new Point(-p.y, p.x),
                 new Point(-p.x, -p.y),
-                new Point(-p.y, -p.x),
-                new Point(p.x, -p.y),
                 new Point(p.y, -p.x),
             };
         }).ToHashSet();
@@ -113,12 +105,6 @@ public static class Trig
     }
     private static Func<Circle, IEnumerable<Point>> _calcPointsInCircle = c => PointsInCircle(c).ToHashSet();
     public static Func<Circle, IEnumerable<Point>> CalcPointsInCircle = _calcPointsInCircle.Memoize();
-
-    public static Tuple<Point, Point> FindClosestPair(IEnumerable<Point> set1, IEnumerable<Point> set2)
-    {
-        var allPairs = set1.SelectMany(p1 => set2.Select(p2 => Tuple.Create(p1, p2)));
-        return allPairs.MinByValue(pp => Trig.Distance(pp.Item1, pp.Item2));
-    }
 
     public static bool IsInRect(Point p, int minX, int maxX, int minY, int maxY)
     {

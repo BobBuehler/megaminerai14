@@ -43,17 +43,17 @@ public static class Extensions
 
     public static IEnumerable<K> MinByValue<K, V>(this IEnumerable<K> source, int count, Func<K, V> predicate)
     {
-        var mins = new LinkedList<Tuple<K, V>>();
+        var mins = new LinkedList<KeyValuePair<K, V>>();
 
         var comparer = Comparer<V>.Default;
         foreach (var k in source)
         {
             var v = predicate(k);
-            if (mins.Count < count || comparer.Compare(mins.Last.Value.Item2, v) > 0)
+            if (mins.Count < count || comparer.Compare(mins.Last.Value.Value, v) > 0)
             {
                 var node = mins.First;
-                var t = Tuple.Create(k, v);
-                while (node != null && comparer.Compare(node.Value.Item2, v) < 0) node = node.Next;
+                var t = new KeyValuePair<K, V>(k, v);
+                while (node != null && comparer.Compare(node.Value.Value, v) < 0) node = node.Next;
                 if (node != null)
                 {
                     mins.AddBefore(node, t);
@@ -68,7 +68,7 @@ public static class Extensions
                 }
             }
         }
-        return mins.Select(m => m.Item1);
+        return mins.Select(m => m.Key);
     }
 
     public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source)
