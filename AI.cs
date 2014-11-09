@@ -72,11 +72,11 @@ public class AI : BaseAI
                             //KILL THEM
         //Check pool locations to see if and where the ally plants are and place soakers in the pool but in range of the allies
         
-        var spawnCount = mySpores / 10; // Choker cost
+        var chokerSpawnCount = mySpores / 10; // Choker cost
         var spawnableCircles = Bb.ourMother.Concat(Bb.ourSpawners).Select(m => m.GetPlant().ToRangeCircle());
         var targets = Bb.theirMother;
         var avoidCircles = Bb.pools.Select(p => p.GetPlant().ToRangeCircle()).Concat(plants.Select(pl => pl.ToUnitCircle()));
-        var germinateLocations = Solver.FindPointsInCirclesNearestTargets(spawnCount, spawnableCircles, targets, avoidCircles);
+        var germinateLocations = Solver.FindPointsInCirclesNearestTargets(chokerSpawnCount, spawnableCircles, targets, avoidCircles);
         germinateLocations.ForEach(p => me.germinate(p.x, p.y, CHOKER));
 
         Bb.readBoard();
@@ -100,6 +100,7 @@ public class AI : BaseAI
             Bb.readBoard();
         }
 
+
         //Step 4: Radiate
             //All soakers buff teammates in range
             //All chokers attack (priority nearest our mother)
@@ -115,6 +116,7 @@ public class AI : BaseAI
                     if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range))
                     {
                         ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
+                        //ourPlant.talk("HUEUEUEUEUE");
                         Bb.readBoard();
                         break;
                     }
@@ -126,6 +128,7 @@ public class AI : BaseAI
                         if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range))
                         {
                             ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
+                            //ourPlant.talk("CHORTLE");
                             Bb.readBoard();
                             break;
                         }
