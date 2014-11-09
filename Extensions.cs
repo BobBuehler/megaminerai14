@@ -24,11 +24,6 @@ public static class Extensions
         return p => c.IsInRange(p);
     }
 
-    public static IEnumerable<Point> PointsInRange(this Circle c)
-    {
-        return Trig.PointsInCircle(c);
-    }
-
     public static K MinByValue<K, V>(this IEnumerable<K> source, Func<K, V> predicate)
     {
         K min = source.First();

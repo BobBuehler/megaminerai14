@@ -10,7 +10,6 @@ public class AI : BaseAI
 {
     static Player me;
     static Plant mother;
-    static int directionOfEnemy;
     public static int
                MOTHER = 0,
                SPAWNER = 1,
@@ -66,7 +65,7 @@ public class AI : BaseAI
         var spawnCount = mySpores / 10; // Choker cost
         var spawnableCircles = Bb.ourMother.Concat(Bb.ourSpawners).Select(m => new Circle(m, Bb.plantLookup[m].Range));
         var targets = Bb.theirMother;
-        var avoidCircles = Bb.pools.Select(p => p.ToCircle(Bb.plantLookup[p].Range));
+        var avoidCircles = Bb.pools.Select(p => p.ToCircle(p.GetPlant().Range));
         avoidCircles.Concat(plants.Select(pl => new Circle(new Point(pl.X, pl.Y), 0)));
         var germinateLocations = Solver.FindPointsInCirclesNearestTargets(spawnCount, spawnableCircles, targets, avoidCircles);
         germinateLocations.ForEach(p => me.germinate(p.x, p.y, CHOKER));
@@ -82,7 +81,7 @@ public class AI : BaseAI
 
         foreach (var chokerPoint in Bb.ourChokers)
         {
-            var endMovePoint = Solver.FindPointsInCirclesNearestTargets(1, chokerPoint.GetPlant().ToCircle().Single(), Bb.theirMother, new Circle[]{});
+            var endMovePoint = Solver.FindPointsInCirclesNearestTargets(1, chokerPoint.GetPlant().ToCircle().Single(), Bb.allTheirPlants, new Circle[]{});
             if (endMovePoint.Any())
             {
                 var p = endMovePoint.First();
@@ -127,18 +126,6 @@ public class AI : BaseAI
         me = players[playerID()];
         //set up mother field
         mother = getMyPlants()[0];
-
-        //set up directionOfEnemy field
-        //if our mother is on the left side of the map, the enemy must be on the right side
-        //and vice versa of course
-        if (mother.X < mapWidth() / 2)
-        {
-            directionOfEnemy = 1;
-        }
-        else
-        {
-            directionOfEnemy = -1;
-        }
 
         Bb.init(this);
     }

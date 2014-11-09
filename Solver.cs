@@ -11,8 +11,8 @@ public static class Solver
             return new Point[] { };
         }
 
-        var startablePoints = starts.SelectMany(c => Trig.PointsInCircle(c));
-        var avoidPoints = avoids.SelectMany(c => Trig.PointsInCircle(c));
+        var startablePoints = starts.SelectMany(c => Trig.CalcPointsInCircle(c));
+        var avoidPoints = avoids.SelectMany(c => Trig.CalcPointsInCircle(c));
 
         var avoidEdgedStarts = avoids.SelectMany(c => Trig.CalcOuterEdgeOfCircle(c));
         avoidEdgedStarts.Intersect(startablePoints);

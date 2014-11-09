@@ -104,10 +104,12 @@ public static class Trig
         }
     }
 
-    public static IEnumerable<Point> PointsInCircle(Circle c)
+    private static IEnumerable<Point> PointsInCircle(Circle c)
     {
         return PointsInRect(c.p.x - c.r, c.p.x + c.r, c.p.y - c.r, c.p.y + c.r).Where(p => c.IsInRange(p));
     }
+    private static Func<Circle, IEnumerable<Point>> _calcPointsInCircle = c => PointsInCircle(c).ToHashSet();
+    public static Func<Circle, IEnumerable<Point>> CalcPointsInCircle = _calcPointsInCircle.Memoize();
 
     public static Tuple<Point, Point> FindClosestPair(IEnumerable<Point> set1, IEnumerable<Point> set2)
     {
