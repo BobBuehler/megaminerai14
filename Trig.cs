@@ -4,26 +4,67 @@ using System.Collections.Generic;
 
 public static class Trig
 {
-    private static Dictionary<Point, int> _magnitudeMap = new Dictionary<Point, int>();
-    public static int CalcMagnitude(Point v)
-    {
-        int magnitude;
-        if (!_magnitudeMap.TryGetValue(v, out magnitude))
+    private static Func<Point, int> _calcMagnitude = v => (int)Math.Sqrt(v.x * v.x + v.y * v.y);
+    public static Func<Point, int> CalcMagnitude = _calcMagnitude.Memoize();
+
+    private static Func<int, IEnumerable<Point>> _calcInnerEdge = r => {
+        double maxY = .7072 * r;
+        double rSquare = r * r;
+        List<Point> halfQuad = new List<Point>((int)maxY);
+        for (double y = 0; y <= maxY; ++y)
         {
-            magnitude = (int)Math.Sqrt(v.x * v.x + v.y * v.y);
-            _magnitudeMap[v] = magnitude;
+            var x = Math.Sqrt(rSquare - y * y);
+            halfQuad.Add(new Point((int)x, (int)y));
         }
-        return magnitude;
+        return halfQuad.SelectMany(p => {
+            return new Point[] {
+                p,
+                new Point(p.y, p.x),
+                new Point(-p.x, p.y),
+                new Point(-p.y, p.x),
+                new Point(-p.x, -p.y),
+                new Point(-p.y, -p.x),
+                new Point(p.x, -p.y),
+                new Point(p.y, -p.x),
+            };
+        }).ToHashSet();
+    };
+    public static Func<int, IEnumerable<Point>> CalcInnerEdge = _calcInnerEdge.Memoize();
+
+    public static IEnumerable<Point> CalcInnerEdgeOfCircle(Circle c)
+    {
+        return CalcInnerEdge(c.r).Select(p => p.Add(c.p));
     }
 
-    private static Dictionary<int, IEnumerable<Point>> _inboundsMap = new Dictionary<int, IEnumerable<Point>>();
-    public static IEnumerable<Point> CalcInRadius(int r)
+    private static Func<int, IEnumerable<Point>> _calcOuterEdge = r =>
     {
-        return null;
-    }
-    public static IEnumerable<Point> CalcInBounds(Circle c)
+        double maxY = .7072 * r;
+        double rSquare = r * r;
+        List<Point> halfQuad = new List<Point>((int)maxY);
+        for (double y = 0; y <= maxY; ++y)
+        {
+            var x = Math.Sqrt(rSquare - y * y);
+            halfQuad.Add(new Point((int)x + 1, (int)y));
+        }
+        return halfQuad.SelectMany(p =>
+        {
+            return new Point[] {
+                p,
+                new Point(p.y, p.x),
+                new Point(-p.x, p.y),
+                new Point(-p.y, p.x),
+                new Point(-p.x, -p.y),
+                new Point(-p.y, -p.x),
+                new Point(p.x, -p.y),
+                new Point(p.y, -p.x),
+            };
+        }).ToHashSet();
+    };
+    public static Func<int, IEnumerable<Point>> CalcOuterEdge = _calcOuterEdge.Memoize();
+
+    public static IEnumerable<Point> CalcOuterEdgeOfCircle(Circle c)
     {
-        return null;
+        return CalcOuterEdge(c.r).Select(p => p.Add(c.p));
     }
 
     public static int Distance(int x1, int y1, int x2, int y2)

@@ -8,19 +8,12 @@ public class Program
     {
         if (args.Length < 1)
         {
-            var passable = new bool[][] {
-                new bool[]{ true, true, false, true },
-                new bool[]{ true, true, false, true },
-                new bool[]{ true, true, true, true }};
-            var starts = new Point[] {new Point(0, 0)};
-            var goal  = new Point(3, 0);
-            var search = new Pather.AStar(
-                starts,
-                g => g.Equals(goal),
-                (a, b) => 1,
-                p => 0,
-                p => Pather.CalcNeighboors(p, n => Trig.IsInRect(n, 0, 3, 0, 2) && passable[n.y][n.x]));
-            search.Path.ForEach(p => Console.WriteLine(p));
+            var p = Solver.FindPointInCirclesNearestTargets(
+                new Circle[] { new Circle(3, 3, 3)},
+                new Point[] { new Point(10, 5)},
+                new Circle[] { }
+                );
+            Console.WriteLine(p);
 
             System.Console.WriteLine("Please enter a hostname");
             return;

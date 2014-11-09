@@ -11,6 +11,12 @@ public struct Circle
         this.r = r;
     }
 
+    public Circle(int x, int y, int r)
+    {
+        this.p = new Point(x, y);
+        this.r = r;
+    }
+
     public override bool Equals(object obj)
     {
         if (!(obj is Circle))

@@ -32,4 +32,14 @@ public struct Point
     {
         return String.Format("({0},{1})", x, y);
     }
+
+    public Point Add(Point p)
+    {
+        return new Point(x + p.x, y + p.y);
+    }
+
+    public Point Subtract(Point p)
+    {
+        return new Point(x - p.x, y - p.y);
+    }
 }

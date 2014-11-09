@@ -61,4 +61,19 @@ public static class Extensions
         foreach(var t in source)
             action(t);
     }
+
+    public static Func<T, TResult> Memoize<T, TResult>(this Func<T, TResult> func)
+    {
+        var results = new Dictionary<T, TResult>();
+        return t =>
+        {
+            TResult r;
+            if (!results.TryGetValue(t, out r))
+            {
+                r = func(t);
+                results[t] = r;
+            }
+            return r;
+        };
+    }
 }
