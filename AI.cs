@@ -66,14 +66,6 @@ public class AI : BaseAI
 
     public void DoSpawn()
     {
-        // Build 2 defensive Aralia if
-        //   They are within 200 of our mother
-        // Go kill stuff if
-        //   They're killing our lead spawner
-        //   We have a spawner in their base
-        // Build spawner on the way to their base
-
-
         // Build defensive if
         //   They are on our half of the screen
         var ourMother = Bb.ourMother.First();
@@ -95,7 +87,7 @@ public class AI : BaseAI
             }
         }
 
-        // Build offensive if they are killing our lead or mother in rang
+        // Build offensive if they are killing our lead or mother in range
         var inRange = Bb.ourSpawners.Any(s => Trig.IsInRange(s, Bb.theirMother.First(), 200));
         var leadKilled = leadSpawner.x != -1 && !Bb.plantLookup.ContainsKey(leadSpawner);
         if (inRange || leadKilled)
@@ -106,8 +98,26 @@ public class AI : BaseAI
             }
         }
 
-        if (!inRange)
-            leadSpawner = Solver.Spawn(SPAWNER, Bb.theirMother.First(), 200);
+        leadSpawner = Solver.Spawn(SPAWNER, Bb.theirMother.First(), 200);
+
+        if (me.Spores > 450)
+        {
+            Solver.Spawn(ARALIA, ourMother, 100);
+        }
+    }
+
+    public void DoMove()
+    {
+        Bb.readBoard();
+        foreach (var d in Bb.ourTitans.Concat(Bb.ourAralias.Where(a => Trig.IsInRange(a, Bb.ourMother.First(), 200))))
+        {
+            Solver.DefendMother(d, Bb.allTheirPlants);
+        }
+        Bb.readBoard();
+        foreach (var p in Bb.allOurPlants)
+        {
+            Solver.Uproot(p, Bb.theirMother.First(), p.GetPlant().Range);
+        }
     }
 
     /// <summary>
@@ -139,24 +149,8 @@ public class AI : BaseAI
         Solver.PreCalc();
 
         DoSpawn();
-        
-        //Step 3: Move
-        //Move plants in groups
-        //Move soakers in pools (needing more strength) closer to the allies by the pool so the soaker is in range
-        //Chokers should just always move towards the mother (attack while passing by)
-        //Check enemy range to move out of range (if desired i.e. soakers to another part of the pool that is outside enemy range)
-        //Keep titans out of enemy attack range but in titan debuff range for the enemies
-        Bb.readBoard();
-        foreach (var d in Bb.ourTitans.Concat(Bb.ourAralias.Where(a => Trig.IsInRange(a, Bb.ourMother.First(), 200))))
-        {
-            Solver.DefendMother(d, Bb.allTheirPlants);
-        }
-        Bb.readBoard();
-        foreach (var p in Bb.allOurPlants)
-        {
-            Solver.Uproot(p, Bb.theirMother.First(), p.GetPlant().Range);
-        }
 
+        DoMove();
 
         //Step 4: Radiate
         //All soakers buff teammates in range
