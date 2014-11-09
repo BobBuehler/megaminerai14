@@ -168,7 +168,7 @@ public class AI : BaseAI
             var ourPlant = ourPlantPoint.GetPlant();
             if (ourPlant.RadiatesLeft > 0)
             {
-                foreach (var theirPlantPoint in Bb.allTheirPlants.Where(p => p.GetPlant().Rads < p.GetPlant().MaxRads && p.GetPlant().Mutation == MOTHER))
+                foreach (var theirPlantPoint in Bb.allTheirPlants.Where(p => p.GetPlant().Rads < p.GetPlant().MaxRads && p.GetPlant().Mutation == TITAN && Trig.IsInRange(p, Bb.theirMother.First(), plantRanges[TITAN])))
                 {
                     if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range))
                     {
@@ -178,28 +178,41 @@ public class AI : BaseAI
                     }
                 }
 
-                if(ourPlant.RadiatesLeft > 0 && ourPlant.Mutation == ARALIA)
+                if (ourPlant.RadiatesLeft > 0)
                 {
-                    foreach (var theirPlantPoint in Bb.allTheirPlants.Where(p => p.GetPlant().Rads < p.GetPlant().MaxRads))
-                    {
-                        if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range) && theirPlantPoint.GetPlant().Mutation != SPAWNER)
-                        {
-                            ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
-                            Bb.readBoard();
-                            break;
-                        }
-                    }
-                }
-
-                if(ourPlant.RadiatesLeft > 0 && ourPlant.Mutation != ARALIA)
-                {
-                    foreach (var theirPlantPoint in Bb.allTheirPlants.Where(p => p.GetPlant().Rads < p.GetPlant().MaxRads))
+                    foreach (var theirPlantPoint in Bb.allTheirPlants.Where(p => p.GetPlant().Rads < p.GetPlant().MaxRads && p.GetPlant().Mutation == MOTHER))
                     {
                         if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range))
                         {
                             ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
                             Bb.readBoard();
                             break;
+                        }
+                    }
+
+                    if (ourPlant.RadiatesLeft > 0 && ourPlant.Mutation == ARALIA)
+                    {
+                        foreach (var theirPlantPoint in Bb.allTheirPlants.Where(p => p.GetPlant().Rads < p.GetPlant().MaxRads))
+                        {
+                            if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range) && theirPlantPoint.GetPlant().Mutation != SPAWNER)
+                            {
+                                ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
+                                Bb.readBoard();
+                                break;
+                            }
+                        }
+                    }
+
+                    if (ourPlant.RadiatesLeft > 0 && ourPlant.Mutation != ARALIA)
+                    {
+                        foreach (var theirPlantPoint in Bb.allTheirPlants.Where(p => p.GetPlant().Rads < p.GetPlant().MaxRads))
+                        {
+                            if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range))
+                            {
+                                ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
+                                Bb.readBoard();
+                                break;
+                            }
                         }
                     }
                 }
