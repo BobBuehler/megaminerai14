@@ -108,12 +108,10 @@ public class AI : BaseAI
         Solver.PreCalc();
         foreach (var chokerPoint in Bb.ourChokers)
         {
-            avoidCircles = Bb.pools.Select(p => p.GetPlant().ToRangeCircle()).Concat(plants.Select(pl => pl.ToUnitCircle())).Concat(chokerGerminateLocations.Select(p => p.ToCircle(0)));
-            var endMovePoint = Solver.FindPointsInCirclesNearestTargets(1, chokerPoint.GetPlant().ToUprootCircle().Single(), /*Bb.allTheirPlants*/ Bb.theirMother, avoidCircles);
-            if (endMovePoint.Any())
+            var step = Solver.CalcNextStep(chokerPoint, Bb.theirMother.First(), uprootRange(), 40);
+            if (step.x != -1)
             {
-                var p = endMovePoint.First();
-                chokerPoint.GetPlant().uproot(p.x, p.y);
+                chokerPoint.GetPlant().uproot(step.x, step.y);
             }
             Bb.readBoard();
         }
@@ -156,7 +154,7 @@ public class AI : BaseAI
         }
 
         sw.Stop();
-        Console.WriteLine("Turn {0} done in {1}ms", turnNumber(), sw.Elapsed);
+        Console.WriteLine("Turn {0} done in {1}s", turnNumber(), sw.Elapsed);
 
         return true;
     }

@@ -23,48 +23,47 @@ public static class Solver
         return potentialStarts.MinByValue(pointCount, p => targets.Min(t => Trig.Distance(p, t)));
     }
 
+    private static HashSet<Point> poolPoints;
     private static HashSet<Point> poolEdges;
     private static HashSet<Point> nearEnemies;
-    private static HashSet<Point> nearAllies;
-    private static HashSet<Point> impassable;
     public static void PreCalc()
     {
-        impassable = Bb.pools.SelectMany(p => Trig.CalcPointsInCircle(new Circle(p, 100))).Concat(Bb.plantLookup.Keys).ToHashSet();
-
+        poolPoints = Bb.pools.SelectMany(p => Trig.CalcPointsInCircle(new Circle(p, 100))).ToHashSet();
         poolEdges = Bb.pools.SelectMany(p => Trig.CalcOuterEdgeOfCircle(new Circle(p, 100))).Where(p => IsPassable(p)).ToHashSet();
         nearEnemies = Bb.allTheirPlants.Select(p => new Point(p.x - 1, p.y)).Where(p => IsPassable(p)).ToHashSet();
-        nearAllies = Bb.allOurPlants.Select(p => new Point(p.x - 1, p.y)).Where(p => IsPassable(p)).ToHashSet();
 
     }
 
     public static bool IsPassable(Point p)
     {
-        return p.IsOnBoard() && !impassable.Contains(p);
+        return p.IsOnBoard() && !Bb.plantLookup.ContainsKey(p) && !poolPoints.Contains(p);
     }
 
-    public static void MoveToward(Point mover, Point target, int range)
+    public static Point CalcNextStep(Point start, Point goal, int stepSize, int goalRange)
     {
-        var plant = mover.GetPlant();
-        var speed = Bb.GetUprootRange(plant);
-        Func<Point, IEnumerable<Point>> getNeighboors = p => {
-            return Trig.CalcInnerEdgeOfCircle(new Circle(p, speed))
-                .Where(p => IsPassable(p));
+        Func<Point, IEnumerable<Point>> getNeighboors = p =>
+        {
+            return Trig.CalcInnerEdgeOfCircle(new Circle(p, stepSize))
+                .Concat(poolEdges)
+                .Concat(nearEnemies)
+                .Where(n => Trig.IsInRange(p, n, stepSize) && IsPassable(n));
         };
 
         var astar = new Pather.AStar(
-            mover.Single(),
-            p => Trig.IsInRange(p, target, range),
-            (a, b) => Trig.IsInRange(a, b, speed) ? 1 : 2,
-            p => Trig.Distance(p, target),
+            start.Single(),
+            p => Trig.IsInRange(p, goal, goalRange),
+            (a, b) => Trig.IsInRange(a, b, stepSize) ? 1 : 2,
+            p => Trig.Distance(p, goal),
             getNeighboors);
         var path = astar.Path;
-        if (path.Any())
+        if (path.Count() > 1)
         {
             var step = path.ElementAt(1);
             if (IsPassable(step))
             {
-                mover.GetPlant().uproot(step.x, step.y);
+                return step;
             }
         }
+        return new Point(-1, -1);
     }
 }
