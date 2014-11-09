@@ -42,7 +42,6 @@ public class AI : BaseAI
         //Step 1: Initialization
         Bb.readBoard();
         int mySpores = me.Spores;
-        HashSet<Point> germinateLocations = new HashSet<Point>();
         HashSet<Point> endMoveLocations = new HashSet<Point>();
         HashSet<Point> attackLocations = new HashSet<Point>();
 
@@ -83,10 +82,13 @@ public class AI : BaseAI
 
         foreach (var chokerPoint in Bb.ourChokers)
         {
-            var endMovePoint = Solver.FindPointInCircleNearestTarget(c, p);
-            endMoveLocations.Add(endMovePoint);
-            Plant choker = getPlantAt(chokerPoint.x, chokerPoint.y);
-            choker.uproot(endMovePoint.x, endMovePoint.y);
+            var endMovePoint = Solver.FindPointsInCirclesNearestTargets(1, chokerPoint.GetPlant().ToCircle().Single(), Bb.theirMother, new Circle[]{});
+            if (endMovePoint.Any())
+            {
+                var p = endMovePoint.First();
+                chokerPoint.GetPlant().uproot(p.x, p.y);
+            }
+            Bb.readBoard();
         }
 
         //Step 4: Radiate
@@ -96,15 +98,15 @@ public class AI : BaseAI
 
         foreach (var ourPlantPoint in Bb.allOurPlants)
         {
-            var ourPlant = getPlantAt(ourPlantPoint.x, ourPlantPoint.y);
-            foreach (var theirPlantPoint in Bb.allTheirPlants)
+            var ourPlant = ourPlantPoint.GetPlant();
+            while (ourPlant.RadiatesLeft > 0)
             {
-                if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, getPlantAt(ourPlantPoint.x, ourPlantPoint.y).Range))
+                foreach (var theirPlantPoint in Bb.allTheirPlants)
                 {
-                    var theirPlant = getPlantAt(theirPlantPoint.x, theirPlantPoint.y);
-                    if (theirPlant != null && ourPlant.RadiatesLeft > 0)
+                    if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range))
                     {
-                        ourPlant.radiate(theirPlant.X, theirPlant.Y);
+                        ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
+                        Bb.readBoard();
                         ourPlant.talk("HUEHUEHUE");
                     }
                 }

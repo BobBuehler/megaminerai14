@@ -106,4 +106,19 @@ public static class Extensions
             return r;
         };
     }
+
+    public static Plant GetPlant(this Point p)
+    {
+        return Bb.plantLookup[p];
+    }
+
+    public static Circle ToCircle(this Plant pl)
+    {
+        return new Circle(pl.X, pl.Y, pl.Range);
+    }
+
+    public static IEnumerable<T> Single<T>(this T t)
+    {
+        return new T[] { t };
+    }
 }
