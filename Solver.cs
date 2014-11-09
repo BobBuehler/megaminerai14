@@ -11,16 +11,15 @@ public static class Solver
             return new Point[] { };
         }
 
-        var startablePoints = starts.SelectMany(c => Trig.CalcPointsInCircle(c));
-        var avoidPoints = avoids.SelectMany(c => Trig.CalcPointsInCircle(c));
-
         var avoidEdgedStarts = avoids.SelectMany(c => Trig.CalcOuterEdgeOfCircle(c))
-            .Intersect(startablePoints);
+            .Where(p => starts.Any(c => c.IsInRange(p)));
 
         var potentialStarts = starts.SelectMany(c => Trig.CalcInnerEdgeOfCircle(c))
-            .Union(avoidEdgedStarts)
-            .Except(avoidPoints);
+            .Concat(avoidEdgedStarts)
+            .Where(p => p.IsOnBoard())
+            .Where(p => !avoids.Any(c => c.IsInRange(p)))
+            .Distinct();
 
-        return potentialStarts.Where(p => p.IsOnBoard()).Distinct().MinByValue(pointCount, p => targets.Min(t => Trig.Distance(p, t)));
+        return potentialStarts.MinByValue(pointCount, p => targets.Min(t => Trig.Distance(p, t)));
     }
 }

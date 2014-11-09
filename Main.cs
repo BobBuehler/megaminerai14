@@ -8,8 +8,8 @@ public class Program
     {
         if (args.Length < 1)
         {
-            /*
-            var c = new Circle(1, 1, 0);
+            
+            var c = new Circle(1, 1, 100);
             Console.WriteLine("IN");
             var ps = Trig.CalcPointsInCircle(c);
             ps.ForEach(p => Console.WriteLine(p));
@@ -19,15 +19,15 @@ public class Program
             Console.WriteLine("INNER EDGE");
             ps = Trig.CalcInnerEdgeOfCircle(c);
             ps.ForEach(p => Console.WriteLine(p));
-            */
-
+            
+            /*
             var ps = Solver.FindPointsInCirclesNearestTargets(
                 2,
-                new Circle(1, 1, 1).Single(),
-                new Point(3, 1).Single(),
-                new Circle(2, 1, 0).Single());
+                new Circle(1, 1, 5).Single(),
+                new Point(20, 1).Single(),
+                new Circle(5, 1, 5).Single());
             ps.ForEach(p => Console.WriteLine(p));
-
+            */
             System.Console.WriteLine("Please enter a hostname");
             return;
         }

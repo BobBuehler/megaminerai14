@@ -63,10 +63,9 @@ public class AI : BaseAI
         //Check pool locations to see if and where the ally plants are and place soakers in the pool but in range of the allies
         
         var spawnCount = mySpores / 10; // Choker cost
-        var spawnableCircles = Bb.ourMother.Concat(Bb.ourSpawners).Select(m => new Circle(m, m.GetPlant().Range));
+        var spawnableCircles = Bb.ourMother.Concat(Bb.ourSpawners).Select(m => m.GetPlant().ToRangeCircle());
         var targets = Bb.theirMother;
-        var avoidCircles = Bb.pools.Select(p => p.ToCircle(p.GetPlant().Range))
-            .Concat(plants.Select(pl => new Circle(new Point(pl.X, pl.Y), 0)));
+        var avoidCircles = Bb.pools.Select(p => p.GetPlant().ToRangeCircle()).Concat(plants.Select(pl => pl.ToUnitCircle()));
         var germinateLocations = Solver.FindPointsInCirclesNearestTargets(spawnCount, spawnableCircles, targets, avoidCircles);
         germinateLocations.ForEach(p => me.germinate(p.x, p.y, CHOKER));
 
@@ -81,7 +80,8 @@ public class AI : BaseAI
 
         foreach (var chokerPoint in Bb.ourChokers)
         {
-            var endMovePoint = Solver.FindPointsInCirclesNearestTargets(1, chokerPoint.GetPlant().ToCircle().Single(), Bb.allTheirPlants, new Circle[]{});
+            avoidCircles = Bb.pools.Select(p => p.GetPlant().ToRangeCircle()).Concat(plants.Select(pl => pl.ToUnitCircle()));
+            var endMovePoint = Solver.FindPointsInCirclesNearestTargets(1, chokerPoint.GetPlant().ToUprootCircle().Single(), Bb.allTheirPlants, avoidCircles);
             if (endMovePoint.Any())
             {
                 var p = endMovePoint.First();
