@@ -62,7 +62,7 @@ public class AI : BaseAI
 
     public static Random rand = new Random();
     public static LinkedList<int> toSpawn = new LinkedList<int>(new int[] {});
-    private static Point leadSpawner;
+    private static Point leadSpawner = new Point(-1, -1);
 
     public void DoSpawn()
     {
@@ -72,13 +72,10 @@ public class AI : BaseAI
         var midX = Bb.Width / 2;
         if (Bb.allTheirPlants.Any(p => me.Id == 0 ? p.x < midX : p.x > midX))
         {
-            if (Bb.theirChokers.Count > Bb.theirAralias.Count)
+            // Get 2 defensive Titans
+            if (Bb.theirChokers.Count > Bb.theirAralias.Count && Bb.ourTitans.Count < 2)
             {
-                // Get one defensive Titan
-                if (Bb.ourTitans.Count == 0)
-                {
-                    Solver.Spawn(TITAN, ourMother, 50);
-                }
+                Solver.Spawn(TITAN, ourMother, 50);
             }
             // Get 3 defensive Aralia
             if (Bb.ourAralias.Where(a => Trig.Distance(a, ourMother) <= 200).Count() < 3)
@@ -94,11 +91,11 @@ public class AI : BaseAI
         {
             while (me.Spores > sporeCosts[ARALIA])
             {
-                Solver.Spawn(ARALIA, Bb.theirMother.First(), 200, false);
+                Solver.Spawn(ARALIA, Bb.theirMother.First(), 200);
             }
         }
 
-        leadSpawner = Solver.Spawn(SPAWNER, Bb.theirMother.First(), 200);
+        leadSpawner = Solver.Spawn(SPAWNER, Bb.theirMother.First(), 200, false);
 
         if (me.Spores > 450)
         {
