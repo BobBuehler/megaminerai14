@@ -4,7 +4,18 @@ using System.Collections.Generic;
 
 public static class Trig
 {
-    private static double[] edgePoints = {0.0, 1.0 / Math.Sqrt(2.0)};
+    private static int _edgeRatioCount = 2;
+    private static Func<int, IEnumerable<double>> _calcEdgeRatios = c =>
+    {
+        var ratios = new double[c];
+        for (int step = 0; step < c; step++)
+        {
+            var angle = (step * Math.PI / 2.0) / c;
+            ratios[step] = Math.Sin(angle);
+        }
+        return ratios;
+    };
+    public static Func<int, IEnumerable<double>> CalcEdgeRatios = _calcEdgeRatios.Memoize();
 
     private static Func<Point, int> _calcMagnitude = v => (int)Math.Sqrt(v.x * v.x + v.y * v.y);
     public static Func<Point, int> CalcMagnitude = _calcMagnitude.Memoize();
@@ -12,7 +23,7 @@ public static class Trig
     private static Func<int, IEnumerable<Point>> _calcInnerEdge = r => {
         var rSquare = r * r;
         List<Point> halfQuad = new List<Point>();
-        foreach (double e in edgePoints)
+        foreach (double e in CalcEdgeRatios(_edgeRatioCount))
         {
             var y = e * r;
             var x = Math.Sqrt(rSquare - y * y);
@@ -38,7 +49,7 @@ public static class Trig
     {
         double rSquare = r * r;
         List<Point> halfQuad = new List<Point>();
-        foreach (double e in edgePoints)
+        foreach (double e in CalcEdgeRatios(_edgeRatioCount))
         {
             var y = e * r;
             var x = Math.Sqrt(rSquare - y * y);
