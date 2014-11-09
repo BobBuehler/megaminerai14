@@ -102,7 +102,7 @@ public class AI : BaseAI
         foreach (var ourPlantPoint in Bb.allOurPlants)
         {
             var ourPlant = ourPlantPoint.GetPlant();
-            while (ourPlant.RadiatesLeft > 0)
+            if (ourPlant.RadiatesLeft > 0)
             {
                 foreach (var theirPlantPoint in Bb.allTheirPlants)
                 {
@@ -110,10 +110,9 @@ public class AI : BaseAI
                     {
                         ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
                         Bb.readBoard();
-                        continue;
+                        break;
                     }
                 }
-                break;
             }
         }
 
