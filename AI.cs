@@ -109,10 +109,12 @@ public class AI : BaseAI
         Bb.readBoard();
         foreach (var d in Bb.ourTitans.Concat(Bb.ourAralias.Where(a => Trig.IsInRange(a, Bb.ourMother.First(), 200))))
         {
-            Solver.DefendMother(d, Bb.theirAralias.Concat(Bb.theirChokers).Where(p => p.GetPlant().Rads < p.GetPlant().MaxRads));
+            Solver.DefendMother(d, Bb.theirAralias.Concat(Bb.theirChokers)
+                .Where(p => p.GetPlant().Rads < p.GetPlant().MaxRads)
+                .Where(p => Trig.IsInRange(p, Bb.ourMother.First(), 200)));
         }
         Bb.readBoard();
-        foreach (var p in Bb.allOurPlants)
+        foreach (var p in Bb.allOurPlants.Where(p => !Trig.IsInRange(p, Bb.ourMother.First(), 200)))
         {
             Solver.Uproot(p, Bb.theirMother.First(), p.GetPlant().Range);
         }
