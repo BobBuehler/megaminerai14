@@ -84,9 +84,8 @@ public class AI : BaseAI
 
         foreach (var chokerPoint in Bb.ourChokers)
         {
-
-            var endMovePoint = Solver.FindPointsInCirclesNearestTargets(1, chokerPoint.GetPlant().ToUprootCircle().Single(), /*Bb.allTheirPlants*/ Bb.theirMother, new Circle[]{});
             avoidCircles = Bb.pools.Select(p => p.GetPlant().ToRangeCircle()).Concat(plants.Select(pl => pl.ToUnitCircle()));
+            var endMovePoint = Solver.FindPointsInCirclesNearestTargets(1, chokerPoint.GetPlant().ToUprootCircle().Single(), /*Bb.allTheirPlants*/ Bb.theirMother, avoidCircles);
             if (endMovePoint.Any())
             {
                 var p = endMovePoint.First();
