@@ -29,6 +29,16 @@ public class AI : BaseAI
         {TITAN, 24}
     };
 
+    public static Dictionary<int, int> plantRanges = new Dictionary<int, int>(){
+        {MOTHER, 150},
+        {SPAWNER, 75},
+        {CHOKER, 40},
+        {SOAKER, 20},
+        {BUMBLEWEED, 30},
+        {ARALIA, 60},
+        {TITAN, 70}
+    };
+
     public static int[] uprootRanges = new int[] {
         0,
         0,
@@ -67,7 +77,7 @@ public class AI : BaseAI
 
         var toSpawn = new LinkedList<int>(new int[] { Bb.ARALIA, Bb.ARALIA, Bb.ARALIA, Bb.ARALIA });
 
-        if (!Bb.ourSpawners.Any(sp => Trig.IsInRange(sp, Bb.theirMother.First(), 75 + 40)))
+        if (!Bb.ourSpawners.Any(sp => Trig.IsInRange(sp, Bb.theirMother.First(), plantRanges[SPAWNER] + plantRanges[CHOKER])))
         {
             toSpawn.AddFirst(Bb.SPAWNER);
         }
@@ -80,7 +90,7 @@ public class AI : BaseAI
             switch(plantType)
             {
                 case SPAWNER:
-                    step = Solver.CalcNextStep(Bb.ourSpawners.Concat(Bb.ourMother), Bb.theirMother.First(), 75, 75 + 40);
+                    step = Solver.CalcNextStep(Bb.ourSpawners.Concat(Bb.ourMother), Bb.theirMother.First(), plantRanges[SPAWNER], plantRanges[SPAWNER] + plantRanges[CHOKER]);
                     break;
                 default:
                     step = Solver.CalcNextStep(Bb.ourSpawners.Concat(Bb.ourMother), Bb.theirMother.First(), uprootRanges[plantType], 50);
