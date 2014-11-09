@@ -15,6 +15,8 @@ public class Pather
 
         public AStar(IEnumerable<Point> starts, Func<Point, bool> isGoal, Func<Point, Point, int> costCalc, Func<Point, int> hCalc, Func<Point, IEnumerable<Point>> neighboorCalc)
         {
+            Path = new LinkedList<Point>();
+
             Open = new HashSet<Point>(starts);
             Closed = new HashSet<Point>();
 

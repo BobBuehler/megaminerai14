@@ -120,6 +120,11 @@ public class AI : BaseAI
         }
     }
 
+    public void DoRadiate()
+    {
+
+    }
+
     /// <summary>
     /// This function is called once, before your first turn.
     /// </summary>
