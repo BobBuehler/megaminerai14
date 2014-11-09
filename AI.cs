@@ -10,7 +10,7 @@ using System.Collections.Generic;
 public class AI : BaseAI
 {
     static Player me;
-    public static int
+    public const int
                MOTHER = 0,
                SPAWNER = 1,
                CHOKER = 2,
@@ -27,6 +27,17 @@ public class AI : BaseAI
         {BUMBLEWEED, 10},
         {ARALIA, 60},
         {TITAN, 24}
+    };
+
+    public static int[] uprootRanges = new int[] {
+        0,
+        0,
+        50,
+        50,
+        75,
+        50,
+        50,
+        0
     };
 
     public override string username()
@@ -50,52 +61,38 @@ public class AI : BaseAI
 
         //Step 1: Initialization
         Bb.readBoard();
-        int mySpores = me.Spores;
+        Solver.PreCalc();
         HashSet<Point> endMoveLocations = new HashSet<Point>();
         HashSet<Point> attackLocations = new HashSet<Point>();
 
-        //Step 2: Spawn Stuff
-        //What to spawn:
-        //Where to spawn:
-        //Early Game:
-        //Spawn spawners as close to the enemy mother as possible but not in a pool
-        //Spawn soakers as close to pools as they can (to the pools closest to the spawners and closest to the enemy mother first)
-        //General Battle:
-        //Spawn chokers => Where: As close to the fight as possible || How Many: More than the enemy (6 ALWAYS 6)
-        //Reflexive spawning of aralias. So if they have one, we spawn one (too advanced for Bob)
-        //Spawn soakers as close to pools as they can (to the pools closest to the spawners and closest to the enemy mother first)
-        //Late Game:
-        //We are losing:
-        //Spawn Titans around the perimeter
-        //Spawn hecka chokers and aralias because of higher spore rate
-        //We are winning:
-        //KILL THEM
-        //Check pool locations to see if and where the ally plants are and place soakers in the pool but in range of the allies
-        bool needSpawners = true;
-        //Console.WriteLine("Checking spawners in range");
-        foreach (var spawnerPoint in Bb.ourSpawners)
+        var toSpawn = new LinkedList<int>(new int[] { Bb.ARALIA, Bb.ARALIA, Bb.ARALIA, Bb.ARALIA });
+
+        if (!Bb.ourSpawners.Any(sp => Trig.IsInRange(sp, Bb.theirMother.First(), 75 + 40)))
         {
-            if (Trig.IsInRange(spawnerPoint, Bb.theirMother.First(), 75 + 40))
+            toSpawn.AddFirst(Bb.SPAWNER);
+        }
+        
+        foreach (var plantType in toSpawn)
+        {
+            if (me.Spores < sporeCosts[plantType]) continue;
+
+            Point step;
+            switch(plantType)
             {
-                needSpawners = false;
-                break;
+                case SPAWNER:
+                    step = Solver.CalcNextStep(Bb.ourSpawners.Concat(Bb.ourMother), Bb.theirMother.First(), 75, 75 + 40);
+                    break;
+                default:
+                    step = Solver.CalcNextStep(Bb.ourSpawners.Concat(Bb.ourMother), Bb.theirMother.First(), uprootRanges[plantType], 50);
+                    break;
+
+            }
+            if (step.x != -1)
+            {
+                me.germinate(step.x, step.y, plantType);
             }
         }
-        //Console.WriteLine("Checked spawners in range, needSpawners = {0}", needSpawners);
-        var spawnerSpawnCount = needSpawners ? 1 : 0; // Number of spawners to spawn (lol)
 
-
-        var chokerSpawnCount = ((mySpores - spawnerSpawnCount * sporeCosts[SPAWNER]) / sporeCosts[CHOKER]); // Number of chokers to spawn
-        //var araliaSpawnCount = 0; // Number of aralias to spawn
-        var spawnableCircles = Bb.ourMother.Concat(Bb.ourSpawners).Select(m => m.GetPlant().ToRangeCircle());
-        var targets = Bb.theirMother;
-        var avoidCircles = Bb.pools.Select(p => p.GetPlant().ToRangeCircle()).Concat(plants.Select(pl => pl.ToUnitCircle()));
-        var germinateLocations = Solver.FindPointsInCirclesNearestTargets(spawnerSpawnCount + chokerSpawnCount, spawnableCircles, targets, avoidCircles);
-
-        germinateLocations.First(p => me.germinate(p.x, p.y, SPAWNER));
-        germinateLocations.Skip(1).ForEach(p => me.germinate(p.x, p.y, CHOKER));
-
-        Bb.readBoard();
 
         //Step 3: Move
         //Move plants in groups
@@ -104,13 +101,13 @@ public class AI : BaseAI
         //Check enemy range to move out of range (if desired i.e. soakers to another part of the pool that is outside enemy range)
         //Keep titans out of enemy attack range but in titan debuff range for the enemies
 
-        Solver.PreCalc();
-        foreach (var chokerPoint in Bb.ourChokers)
+        Bb.readBoard();
+        foreach (var uprooter in Bb.allOurPlants.Select(p => p.GetPlant()).Where(pl => pl.UprootsLeft > 0))
         {
-            var step = Solver.CalcNextStep(chokerPoint, Bb.theirMother.First(), uprootRange(), 40);
+            var step = Solver.CalcNextStep(new Point(uprooter.X, uprooter.Y), Bb.theirMother.First(), Bb.GetUprootRange(uprooter), uprooter.Range);
             if (step.x != -1)
             {
-                chokerPoint.GetPlant().uproot(step.x, step.y);
+                uprooter.uproot(step.x, step.y);
             }
             Bb.readBoard();
         }

@@ -41,6 +41,11 @@ public static class Solver
 
     public static Point CalcNextStep(Point start, Point goal, int stepSize, int goalRange)
     {
+        return CalcNextStep(start.Single(), goal, stepSize, goalRange);
+    }
+
+    public static Point CalcNextStep(IEnumerable<Point> starts, Point goal, int stepSize, int goalRange)
+    {
         Func<Point, IEnumerable<Point>> getNeighboors = p =>
         {
             return Trig.CalcInnerEdgeOfCircle(new Circle(p, stepSize))
@@ -50,7 +55,7 @@ public static class Solver
         };
 
         var astar = new Pather.AStar(
-            start.Single(),
+            starts,
             p => Trig.IsInRange(p, goal, goalRange),
             (a, b) => Trig.IsInRange(a, b, stepSize) ? 1 : 2,
             p => Trig.Distance(p, goal),
