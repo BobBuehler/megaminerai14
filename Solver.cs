@@ -50,7 +50,6 @@ public static class Solver
             var stepSize = Bb.plantLookup.ContainsKey(p) ? p.GetPlant().Range : uprootRange;
             return Trig.CalcInnerEdgeOfCircle(new Circle(p, stepSize))
                 .Concat(avoidPools ? poolEdges : new HashSet<Point>())
-                .Concat(nearEnemies)
                 .Where(n => Trig.IsInRange(p, n, stepSize) && IsPassable(n, avoidPools));
         };
 
@@ -58,7 +57,7 @@ public static class Solver
             starts,
             p => Trig.IsInRange(p, goal, goalRange),
             (a, b) => 1,
-            p => Trig.Distance(p, goal) / uprootRange,
+            p => (int)Math.Ceiling(Trig.Distance(p, goal) / (double)uprootRange),
             getNeighboors);
         if (astar.Path.Count() > 1)
         {
@@ -78,23 +77,22 @@ public static class Solver
         }
         Bb.readBoard();
         var plant = mover.GetPlant();
-        var path = CalcPath(mover.Single(), Bb.GetUprootRange(plant), goal, goalRange);
-        if (path.Count() > 1)
+        var astar = Search(mover.Single(), Bb.GetUprootRange(plant), goal, goalRange);
+        if (astar.Path.Count() > 1)
         {
-            var step = path.ElementAt(1);
+            var step = astar.Path.ElementAt(1);
             plant.uproot(step.x, step.y);
             return true;
         }
         return false;
     }
 
-    public static IEnumerable<Point> CalcPath(IEnumerable<Point> starts, int stepSize, Point goal, int goalRange, bool avoidPools = true)
+    public static Pather.AStar Search(IEnumerable<Point> starts, int stepSize, Point goal, int goalRange, bool avoidPools = true)
     {
         Func<Point, IEnumerable<Point>> getNeighboors = p =>
         {
             return Trig.CalcInnerEdgeOfCircle(new Circle(p, stepSize))
-                .Concat(poolEdges)
-                .Concat(nearEnemies)
+                .Concat(avoidPools ? poolEdges : new HashSet<Point>())
                 .Where(n => Trig.IsInRange(p, n, stepSize) && IsPassable(n, avoidPools));
         };
 
@@ -102,8 +100,57 @@ public static class Solver
             starts,
             p => Trig.IsInRange(p, goal, goalRange),
             (a, b) => 1,
-            p => Trig.Distance(p, goal) / stepSize,
+            p => (int)Math.Ceiling(Trig.Distance(p, goal) / (double)stepSize),
             getNeighboors);
-        return astar.Path;
+        return astar;
+    }
+
+    public static void DefendMother(Point defender, IEnumerable<Point> targets)
+    {
+        Bb.readBoard();
+        var mother = Bb.ourMother.First();
+        var plant = defender.GetPlant();
+        var nearestTarget = targets.MinByValue(t => Trig.Distance(defender, t));
+        var nearestDistance = Trig.Distance(defender, nearestTarget);
+        switch (plant.Mutation)
+        {
+            case AI.ARALIA:
+            case AI.CHOKER:
+                if (plant.RadiatesLeft > 0)
+                {
+                    if (plant.UprootsLeft > 0 && nearestDistance > plant.Range && nearestDistance <= plant.Range + Bb.GetUprootRange(plant.Mutation))
+                    {
+                        var astar = Search(defender.Single(), Bb.GetUprootRange(plant.Mutation), nearestTarget, plant.Range);
+                        if (astar.Path.Count() == 2)
+                        {
+                            var step = astar.Path.ElementAt(1);
+                            plant.uproot(step.x, step.y);
+                        }
+                    }
+                    if (Trig.Distance(plant.ToPoint(), nearestTarget) <= plant.Range)
+                    {
+                        plant.radiate(nearestTarget.x, nearestTarget.y);
+                    }
+                }
+                if (plant.UprootsLeft > 0 && Trig.Distance(mother, defender) > 75)
+                {
+                    Uproot(defender, mother, 75);
+                }
+                break;
+            case AI.TITAN:
+                if (plant.UprootsLeft > 0 && Trig.Distance(mother, defender) > 75)
+                {
+                    Uproot(defender, mother, 75);
+                }
+                if (plant.UprootsLeft > 0)
+                {
+                    var dest = Trig.CalcPointsInCircle(plant.ToUprootCircle()).MaxByValue(d => targets.Count(t => Trig.Distance(d, t) <= plant.Range));
+                    if (!dest.Equals(defender))
+                    {
+                        plant.uproot(dest.x, dest.y);
+                    }
+                }
+                break;
+        }
     }
 }

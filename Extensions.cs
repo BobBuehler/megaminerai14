@@ -41,6 +41,23 @@ public static class Extensions
         return min;
     }
 
+    public static K MaxByValue<K, V>(this IEnumerable<K> source, Func<K, V> predicate)
+    {
+        K max = source.First();
+        V maxValue = predicate(max);
+        var comparer = Comparer<V>.Default;
+        foreach (var k in source)
+        {
+            var v = predicate(k);
+            if (comparer.Compare(maxValue, v) < 0)
+            {
+                max = k;
+                maxValue = v;
+            }
+        }
+        return max;
+    }
+
     public static IEnumerable<K> MinByValue<K, V>(this IEnumerable<K> source, int count, Func<K, V> predicate)
     {
         var mins = new LinkedList<KeyValuePair<K, V>>();
@@ -105,6 +122,11 @@ public static class Extensions
     public static Plant GetPlant(this Point p)
     {
         return Bb.plantLookup[p];
+    }
+
+    public static Point ToPoint(this Plant pl)
+    {
+        return new Point(pl.X, pl.Y);
     }
 
     public static Circle ToUnitCircle(this Plant pl)
