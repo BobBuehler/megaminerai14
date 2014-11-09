@@ -10,7 +10,6 @@ using System.Collections.Generic;
 public class AI : BaseAI
 {
     static Player me;
-    static Plant mother;
     public static int
                MOTHER = 0,
                SPAWNER = 1,
@@ -20,8 +19,15 @@ public class AI : BaseAI
                ARALIA = 5,
                TITAN = 6,
                POOL = 7;
-    static Random rand = new Random();
 
+    public static Dictionary<int, int> sporeCosts = new Dictionary<int, int>(){
+        {SPAWNER, 5},
+        {CHOKER, 10},
+        {SOAKER, 25},
+        {BUMBLEWEED, 10},
+        {ARALIA, 60},
+        {TITAN, 24}
+    };
 
     public override string username()
     {
@@ -142,7 +148,6 @@ public class AI : BaseAI
         //set up me field
         me = players[playerID()];
         //set up mother field
-        mother = getMyPlants()[0];
 
         Bb.init(this);
     }
