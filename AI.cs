@@ -89,7 +89,7 @@ public class AI : BaseAI
             switch(plantType)
             {
                 case SPAWNER:
-                    Solver.Spawn(plantType, Bb.theirMother.First(), 75 + 40);
+                    Solver.Spawn(plantType, Bb.theirMother.First(), 75 + 40, false);
                     break;
                 default:
                     Solver.Spawn(plantType, Bb.theirMother.First(), 50);

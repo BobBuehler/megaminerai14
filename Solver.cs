@@ -34,12 +34,12 @@ public static class Solver
 
     }
 
-    public static bool IsPassable(Point p)
+    public static bool IsPassable(Point p, bool avoidPools = true)
     {
-        return p.IsOnBoard() && !Bb.plantLookup.ContainsKey(p) && !poolPoints.Contains(p) && !Bb.spawning.Contains(p);
+        return p.IsOnBoard() && !Bb.plantLookup.ContainsKey(p) && !Bb.spawning.Contains(p) && !(avoidPools && poolPoints.Contains(p));
     }
 
-    public static bool Spawn(int plantType, Point goal, int goalRange)
+    public static bool Spawn(int plantType, Point goal, int goalRange, bool avoidPools = true)
     {
         if (AI.me.Spores < AI.sporeCosts[plantType]) return false;
 
@@ -49,9 +49,9 @@ public static class Solver
         {
             var stepSize = Bb.plantLookup.ContainsKey(p) ? p.GetPlant().Range : uprootRange;
             return Trig.CalcInnerEdgeOfCircle(new Circle(p, stepSize))
-                .Concat(poolEdges)
+                .Concat(avoidPools ? poolEdges : new HashSet<Point>())
                 .Concat(nearEnemies)
-                .Where(n => Trig.IsInRange(p, n, stepSize) && IsPassable(n));
+                .Where(n => Trig.IsInRange(p, n, stepSize) && IsPassable(n, avoidPools));
         };
 
         var astar = new Pather.AStar(
@@ -70,7 +70,7 @@ public static class Solver
         return false;
     }
 
-    public static bool Uproot(Point mover, Point goal, int goalRange)
+    public static bool Uproot(Point mover, Point goal, int goalRange, bool avoidPools = true)
     {
         if (mover.GetPlant().UprootsLeft <= 0)
         {
@@ -88,14 +88,14 @@ public static class Solver
         return false;
     }
 
-    public static IEnumerable<Point> CalcPath(IEnumerable<Point> starts, int stepSize, Point goal, int goalRange)
+    public static IEnumerable<Point> CalcPath(IEnumerable<Point> starts, int stepSize, Point goal, int goalRange, bool avoidPools = true)
     {
         Func<Point, IEnumerable<Point>> getNeighboors = p =>
         {
             return Trig.CalcInnerEdgeOfCircle(new Circle(p, stepSize))
                 .Concat(poolEdges)
                 .Concat(nearEnemies)
-                .Where(n => Trig.IsInRange(p, n, stepSize) && IsPassable(n));
+                .Where(n => Trig.IsInRange(p, n, stepSize) && IsPassable(n, avoidPools));
         };
 
         var astar = new Pather.AStar(
