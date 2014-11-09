@@ -55,55 +55,54 @@ public class AI : BaseAI
         HashSet<Point> attackLocations = new HashSet<Point>();
 
         //Step 2: Spawn Stuff
-            //What to spawn:
-                //Where to spawn:
-                    //Early Game:
-                        //Spawn spawners as close to the enemy mother as possible but not in a pool
-                        //Spawn soakers as close to pools as they can (to the pools closest to the spawners and closest to the enemy mother first)
-                    //General Battle:
-                        //Spawn chokers => Where: As close to the fight as possible || How Many: More than the enemy (6 ALWAYS 6)
-                        //Reflexive spawning of aralias. So if they have one, we spawn one (too advanced for Bob)
-                        //Spawn soakers as close to pools as they can (to the pools closest to the spawners and closest to the enemy mother first)
-                    //Late Game:
-                        //We are losing:
-                            //Spawn Titans around the perimeter
-                            //Spawn hecka chokers and aralias because of higher spore rate
-                        //We are winning:
-                            //KILL THEM
+        //What to spawn:
+        //Where to spawn:
+        //Early Game:
+        //Spawn spawners as close to the enemy mother as possible but not in a pool
+        //Spawn soakers as close to pools as they can (to the pools closest to the spawners and closest to the enemy mother first)
+        //General Battle:
+        //Spawn chokers => Where: As close to the fight as possible || How Many: More than the enemy (6 ALWAYS 6)
+        //Reflexive spawning of aralias. So if they have one, we spawn one (too advanced for Bob)
+        //Spawn soakers as close to pools as they can (to the pools closest to the spawners and closest to the enemy mother first)
+        //Late Game:
+        //We are losing:
+        //Spawn Titans around the perimeter
+        //Spawn hecka chokers and aralias because of higher spore rate
+        //We are winning:
+        //KILL THEM
         //Check pool locations to see if and where the ally plants are and place soakers in the pool but in range of the allies
         bool needSpawners = true;
-        Console.WriteLine("Checking spawners in range");
-        foreach(var spawnerPoint in Bb.ourSpawners)
+        //Console.WriteLine("Checking spawners in range");
+        foreach (var spawnerPoint in Bb.ourSpawners)
         {
-            if(Trig.IsInRange(spawnerPoint, Bb.theirMother.First(), 75 + 40))
+            if (Trig.IsInRange(spawnerPoint, Bb.theirMother.First(), 75 + 40))
             {
                 needSpawners = false;
                 break;
             }
         }
-        Console.WriteLine("Checked spawners in range, needSpawners = {0}", needSpawners);
+        //Console.WriteLine("Checked spawners in range, needSpawners = {0}", needSpawners);
         var spawnerSpawnCount = needSpawners ? 1 : 0; // Number of spawners to spawn (lol)
 
-        
+
         var chokerSpawnCount = ((mySpores - spawnerSpawnCount * sporeCosts[SPAWNER]) / sporeCosts[CHOKER]); // Number of chokers to spawn
         //var araliaSpawnCount = 0; // Number of aralias to spawn
         var spawnableCircles = Bb.ourMother.Concat(Bb.ourSpawners).Select(m => m.GetPlant().ToRangeCircle());
         var targets = Bb.theirMother;
         var avoidCircles = Bb.pools.Select(p => p.GetPlant().ToRangeCircle()).Concat(plants.Select(pl => pl.ToUnitCircle()));
-        var spawnerGerminateLocations = Solver.FindPointsInCirclesNearestTargets(spawnerSpawnCount, spawnableCircles, targets, avoidCircles);
-        var chokerGerminateLocations = Solver.FindPointsInCirclesNearestTargets(chokerSpawnCount, spawnableCircles, targets, avoidCircles.Concat(spawnerGerminateLocations.Select(p => p.ToCircle(0))));
-        
-        spawnerGerminateLocations.ForEach(p => me.germinate(p.x, p.y, SPAWNER));
-        chokerGerminateLocations.ForEach(p => me.germinate(p.x, p.y, CHOKER));
+        var germinateLocations = Solver.FindPointsInCirclesNearestTargets(spawnerSpawnCount + chokerSpawnCount, spawnableCircles, targets, avoidCircles);
+
+        germinateLocations.First(p => me.germinate(p.x, p.y, SPAWNER));
+        germinateLocations.Skip(1).ForEach(p => me.germinate(p.x, p.y, CHOKER));
 
         Bb.readBoard();
 
         //Step 3: Move
-            //Move plants in groups
-            //Move soakers in pools (needing more strength) closer to the allies by the pool so the soaker is in range
-            //Chokers should just always move towards the mother (attack while passing by)
-            //Check enemy range to move out of range (if desired i.e. soakers to another part of the pool that is outside enemy range)
-            //Keep titans out of enemy attack range but in titan debuff range for the enemies
+        //Move plants in groups
+        //Move soakers in pools (needing more strength) closer to the allies by the pool so the soaker is in range
+        //Chokers should just always move towards the mother (attack while passing by)
+        //Check enemy range to move out of range (if desired i.e. soakers to another part of the pool that is outside enemy range)
+        //Keep titans out of enemy attack range but in titan debuff range for the enemies
 
         Solver.PreCalc();
         foreach (var chokerPoint in Bb.ourChokers)
@@ -118,9 +117,9 @@ public class AI : BaseAI
 
 
         //Step 4: Radiate
-            //All soakers buff teammates in range
-            //All chokers attack (priority nearest our mother)
-            //Titans debuff cause yeah
+        //All soakers buff teammates in range
+        //All chokers attack (priority nearest our mother)
+        //Titans debuff cause yeah
 
         foreach (var ourPlantPoint in Bb.allOurPlants)
         {
@@ -131,20 +130,20 @@ public class AI : BaseAI
                 {
                     if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range))
                     {
+                        ourPlant.talk("HUEUEUEUEUE");
                         ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
-                        //ourPlant.talk("HUEUEUEUEUE");
                         Bb.readBoard();
                         break;
                     }
                 }
-                if(ourPlant.RadiatesLeft > 0)
+                if (ourPlant.RadiatesLeft > 0)
                 {
                     foreach (var theirPlantPoint in Bb.allTheirPlants.Where(p => p.GetPlant().Rads < p.GetPlant().MaxRads))
                     {
                         if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range))
                         {
+                            ourPlant.talk("CHORTLE");
                             ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
-                            //ourPlant.talk("CHORTLE");
                             Bb.readBoard();
                             break;
                         }
