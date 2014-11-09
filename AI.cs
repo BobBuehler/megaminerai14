@@ -61,8 +61,8 @@ public class AI : BaseAI
     }
 
     public static Random rand = new Random();
+    public static LinkedList<int> toSpawn = new LinkedList<int>(new int[] {});
 
-    public static LinkedList<int> toSpawn = new LinkedList<int>(new int[] { Bb.ARALIA, Bb.ARALIA, Bb.ARALIA, Bb.ARALIA});
     /// <summary>
     /// This function is called each time it is your turn.
     /// </summary>
@@ -76,9 +76,10 @@ public class AI : BaseAI
         Bb.newTurn();
         Bb.readBoard();
         Solver.PreCalc();
-
-        var toSpawn = new LinkedList<int>(new int[] { Bb.ARALIA, Bb.ARALIA, Bb.ARALIA, Bb.ARALIA });
-
+        if (Bb.allTheirPlants.Any(ts => Bb.ourSpawners.Any(os => Trig.IsInRange(ts, os, 180))))
+        {
+            toSpawn.AddFirst(Bb.ARALIA);
+        }
         if (!Bb.ourSpawners.Any(sp => Trig.IsInRange(sp, Bb.theirMother.First(), plantRanges[SPAWNER] + plantRanges[CHOKER])))
         {
             toSpawn.AddFirst(Bb.SPAWNER);
@@ -87,29 +88,40 @@ public class AI : BaseAI
         {
             toSpawn.AddFirst(Bb.TITAN);
         }
-        
-        foreach (var plantType in toSpawn)
+        Console.WriteLine("In toSpawn: ");
+        while (toSpawn.Count > 0)
         {
+            Console.WriteLine(toSpawn.First.Value + ", ");
             Bb.readBoard();
-            switch(plantType)
+            int plantType = toSpawn.First.Value;
+            if (me.Spores > sporeCosts[plantType])
             {
-                case SPAWNER:
-                    if(Bb.allTheirPlants.Any(ts => Bb.ourSpawners.Any(os => Trig.IsInRange(ts, os, 180))))
-                    {
-                        Solver.Spawn(plantType, Bb.theirMother.First(), 75 + 40);
-                    }
-                    else
-                        Solver.Spawn(plantType, Bb.theirMother.First(), 75 + 40, false);
-                    break;
-                case TITAN:
-                    Solver.Spawn(plantType, Bb.ourMother.First(), 200);
-                    break;
-                default:
-                    Solver.Spawn(plantType, Bb.theirMother.First(), 50);
-                    toSpawn.RemoveFirst();
-                    break;
+                switch (plantType)
+                {
+                    case SPAWNER:
+                        if (Bb.allTheirPlants.Any(ts => Bb.ourSpawners.Any(os => Trig.IsInRange(ts, os, 180))))
+                        {
+                            Solver.Spawn(plantType, Bb.theirMother.First(), 75 + 40);
+                        }
+                        else
+                        {
+                            Solver.Spawn(plantType, Bb.theirMother.First(), 75 + 40, false);
+                        }
+                        toSpawn.RemoveFirst();
+                        break;
+                    case TITAN:
+                        Solver.Spawn(plantType, Bb.ourMother.First(), 200);
+                        toSpawn.RemoveFirst();
+                        break;
+                    default:
+                        Solver.Spawn(plantType, Bb.theirMother.First(), 50);
+                        toSpawn.RemoveFirst();
+                        break;
 
+                }
             }
+            else
+                break;
         }
 
 
