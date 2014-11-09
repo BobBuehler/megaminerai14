@@ -24,13 +24,9 @@ public static class Solver
     }
 
     private static HashSet<Point> poolPoints;
-    private static HashSet<Point> poolEdges;
-    private static HashSet<Point> nearEnemies;
     public static void PreCalc()
     {
         poolPoints = Bb.pools.SelectMany(p => Trig.CalcPointsInCircle(new Circle(p, 100))).ToHashSet();
-        poolEdges = new HashSet<Point>(); // Bb.pools.SelectMany(p => Trig.CalcOuterEdgeOfCircle(new Circle(p, 100))).Where(p => IsPassable(p)).ToHashSet();
-        nearEnemies = Bb.allTheirPlants.Select(p => new Point(p.x - 1, p.y)).Where(p => IsPassable(p)).ToHashSet();
 
     }
 
@@ -46,7 +42,7 @@ public static class Solver
         var uprootRange = Bb.GetUprootRange(plantType);
         var starts = Bb.ourMother.Concat(Bb.ourSpawners);
         var goalEdge = Trig.CalcInnerEdgeOfCircle(new Circle(goal, goalRange));
-        var additionalNeighboors = goalEdge.Concat(avoidPools ? poolEdges : new HashSet<Point>()).Where(n => IsPassable(n)).ToHashSet();
+        var additionalNeighboors = goalEdge.Where(n => IsPassable(n)).ToHashSet();
 
         Func<Point, IEnumerable<Point>> getNeighboors = p =>
         {
@@ -93,7 +89,7 @@ public static class Solver
     public static Pather.AStar Search(IEnumerable<Point> starts, int stepSize, Point goal, int goalRange, bool avoidPools = true)
     {
         var goalEdge = Trig.CalcInnerEdgeOfCircle(new Circle(goal, goalRange));
-        var additionalNeighboors = goalEdge.Concat(avoidPools ? poolEdges : new HashSet<Point>()).Where(n => IsPassable(n)).ToHashSet();
+        var additionalNeighboors = goalEdge.Where(n => IsPassable(n)).ToHashSet();
 
         Func<Point, IEnumerable<Point>> getNeighboors = p =>
         {
