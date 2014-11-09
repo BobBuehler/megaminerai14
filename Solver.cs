@@ -6,6 +6,11 @@ public static class Solver
 {
     public static IEnumerable<Point> FindPointsInCirclesNearestTargets(int pointCount, IEnumerable<Circle> starts, IEnumerable<Point> targets, IEnumerable<Circle> avoids)
     {
+        if (pointCount <= 0)
+        {
+            return new Point[] { };
+        }
+
         var startablePoints = starts.SelectMany(c => Trig.PointsInCircle(c));
         var avoidPoints = avoids.SelectMany(c => Trig.PointsInCircle(c));
 

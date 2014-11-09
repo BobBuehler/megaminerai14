@@ -109,9 +109,9 @@ public class AI : BaseAI
                     if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range))
                     {
                         ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
-                        continue;
                         Bb.readBoard();
                         ourPlant.talk("HUEHUEHUE");
+                        continue;
                     }
                 }
                 break;
