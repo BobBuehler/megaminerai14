@@ -10,7 +10,6 @@ using System.Collections.Generic;
 public class AI : BaseAI
 {
     static Player me;
-    static Plant mother;
     public static int
                MOTHER = 0,
                SPAWNER = 1,
@@ -20,8 +19,15 @@ public class AI : BaseAI
                ARALIA = 5,
                TITAN = 6,
                POOL = 7;
-    static Random rand = new Random();
 
+    public static Dictionary<int, int> sporeCosts = new Dictionary<int, int>(){
+        {SPAWNER, 5},
+        {CHOKER, 10},
+        {SOAKER, 25},
+        {BUMBLEWEED, 10},
+        {ARALIA, 60},
+        {TITAN, 24}
+    };
 
     public override string username()
     {
@@ -66,11 +72,11 @@ public class AI : BaseAI
                             //KILL THEM
         //Check pool locations to see if and where the ally plants are and place soakers in the pool but in range of the allies
         
-        var spawnCount = mySpores / 10; // Choker cost
+        var chokerSpawnCount = mySpores / 10; // Choker cost
         var spawnableCircles = Bb.ourMother.Concat(Bb.ourSpawners).Select(m => m.GetPlant().ToRangeCircle());
         var targets = Bb.theirMother;
         var avoidCircles = Bb.pools.Select(p => p.GetPlant().ToRangeCircle()).Concat(plants.Select(pl => pl.ToUnitCircle()));
-        var germinateLocations = Solver.FindPointsInCirclesNearestTargets(spawnCount, spawnableCircles, targets, avoidCircles);
+        var germinateLocations = Solver.FindPointsInCirclesNearestTargets(chokerSpawnCount, spawnableCircles, targets, avoidCircles);
         germinateLocations.ForEach(p => me.germinate(p.x, p.y, CHOKER));
 
         Bb.readBoard();
@@ -94,6 +100,7 @@ public class AI : BaseAI
             Bb.readBoard();
         }
 
+
         //Step 4: Radiate
             //All soakers buff teammates in range
             //All chokers attack (priority nearest our mother)
@@ -109,6 +116,7 @@ public class AI : BaseAI
                     if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range))
                     {
                         ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
+                        //ourPlant.talk("HUEUEUEUEUE");
                         Bb.readBoard();
                         break;
                     }
@@ -120,6 +128,7 @@ public class AI : BaseAI
                         if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range))
                         {
                             ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
+                            //ourPlant.talk("CHORTLE");
                             Bb.readBoard();
                             break;
                         }
@@ -142,7 +151,6 @@ public class AI : BaseAI
         //set up me field
         me = players[playerID()];
         //set up mother field
-        mother = getMyPlants()[0];
 
         Bb.init(this);
     }
