@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
@@ -38,6 +39,9 @@ public class AI : BaseAI
     /// <returns>True to end your turn. False to ask the server for updated information.</returns>
     public override bool run()
     {
+        var sw = new Stopwatch();
+        sw.Start();
+
         //Step 1: Initialization
         Bb.readBoard();
         int mySpores = me.Spores;
@@ -63,10 +67,9 @@ public class AI : BaseAI
         //Check pool locations to see if and where the ally plants are and place soakers in the pool but in range of the allies
         
         var spawnCount = mySpores / 10; // Choker cost
-        var spawnableCircles = Bb.ourMother.Concat(Bb.ourSpawners).Select(m => new Circle(m, m.GetPlant().Range));
+        var spawnableCircles = Bb.ourMother.Concat(Bb.ourSpawners).Select(m => m.GetPlant().ToRangeCircle());
         var targets = Bb.theirMother;
-        var avoidCircles = Bb.pools.Select(p => p.ToCircle(p.GetPlant().Range))
-            .Concat(plants.Select(pl => new Circle(new Point(pl.X, pl.Y), 0)));
+        var avoidCircles = Bb.pools.Select(p => p.GetPlant().ToRangeCircle()).Concat(plants.Select(pl => pl.ToUnitCircle()));
         var germinateLocations = Solver.FindPointsInCirclesNearestTargets(spawnCount, spawnableCircles, targets, avoidCircles);
         germinateLocations.ForEach(p => me.germinate(p.x, p.y, CHOKER));
 
@@ -81,7 +84,9 @@ public class AI : BaseAI
 
         foreach (var chokerPoint in Bb.ourChokers)
         {
-            var endMovePoint = Solver.FindPointsInCirclesNearestTargets(1, chokerPoint.GetPlant().ToCircle().Single(), /*Bb.allTheirPlants*/ Bb.theirMother, new Circle[]{});
+
+            var endMovePoint = Solver.FindPointsInCirclesNearestTargets(1, chokerPoint.GetPlant().ToUprootCircle().Single(), /*Bb.allTheirPlants*/ Bb.theirMother, new Circle[]{});
+            avoidCircles = Bb.pools.Select(p => p.GetPlant().ToRangeCircle()).Concat(plants.Select(pl => pl.ToUnitCircle()));
             if (endMovePoint.Any())
             {
                 var p = endMovePoint.First();
@@ -102,7 +107,7 @@ public class AI : BaseAI
             {
                 foreach (var theirPlantPoint in Bb.allTheirPlants.Where(p => p.GetPlant().Rads < p.GetPlant().MaxRads && p.GetPlant().Mutation == MOTHER))
                 {
-                    if(Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range))
+                    if (Trig.IsInRange(ourPlantPoint, theirPlantPoint, ourPlant.Range))
                     {
                         ourPlant.radiate(theirPlantPoint.x, theirPlantPoint.y);
                         Bb.readBoard();
@@ -124,7 +129,8 @@ public class AI : BaseAI
             }
         }
 
-        Console.WriteLine("DONE");
+        sw.Stop();
+        Console.WriteLine("Turn {0} done in {1}ms", turnNumber(), sw.Elapsed);
 
         return true;
     }

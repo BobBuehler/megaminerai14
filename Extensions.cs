@@ -107,9 +107,19 @@ public static class Extensions
         return Bb.plantLookup[p];
     }
 
-    public static Circle ToCircle(this Plant pl)
+    public static Circle ToUnitCircle(this Plant pl)
+    {
+        return new Circle(pl.X, pl.Y, 0);
+    }
+
+    public static Circle ToRangeCircle(this Plant pl)
     {
         return new Circle(pl.X, pl.Y, pl.Range);
+    }
+
+    public static Circle ToUprootCircle(this Plant pl)
+    {
+        return new Circle(pl.X, pl.Y, Bb.ourAI.uprootRange());
     }
 
     public static IEnumerable<T> Single<T>(this T t)

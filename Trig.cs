@@ -4,14 +4,17 @@ using System.Collections.Generic;
 
 public static class Trig
 {
+    private static double[] edgePoints = {0.0, 0.5};
+
     private static Func<Point, int> _calcMagnitude = v => (int)Math.Sqrt(v.x * v.x + v.y * v.y);
     public static Func<Point, int> CalcMagnitude = _calcMagnitude.Memoize();
 
     private static Func<int, IEnumerable<Point>> _calcInnerEdge = r => {
         var rSquare = r * r;
         List<Point> halfQuad = new List<Point>();
-        for (double y = 0; y <= r; y += .5)
+        foreach (double e in edgePoints)
         {
+            var y = e * r;
             var x = Math.Ceiling(Math.Sqrt(rSquare - y * y));
             halfQuad.Add(new Point((int)x, (int)Math.Ceiling(y)));
         }
@@ -39,8 +42,9 @@ public static class Trig
     {
         double rSquare = r * r;
         List<Point> halfQuad = new List<Point>();
-        for (double y = 0; y <= r; y += 0.25)
+        foreach (double e in edgePoints)
         {
+            var y = e * r;
             var x = Math.Ceiling(Math.Sqrt(rSquare - y * y));
             halfQuad.Add(new Point((int)x + 1, (int)Math.Ceiling(y)));
         }
