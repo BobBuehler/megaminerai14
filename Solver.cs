@@ -113,11 +113,11 @@ public static class Solver
 
     public static void DefendMother(Point defender, IEnumerable<Point> targets)
     {
+        Bb.readBoard();
         if (!targets.Any() || !Bb.plantLookup.ContainsKey(defender))
         {
             return;
         }
-        Bb.readBoard();
         var mother = Bb.ourMother.First();
         var plant = defender.GetPlant();
         var nearestTarget = targets.MinByValue(t => Trig.Distance(defender, t));
