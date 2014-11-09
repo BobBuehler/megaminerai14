@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
@@ -38,6 +39,9 @@ public class AI : BaseAI
     /// <returns>True to end your turn. False to ask the server for updated information.</returns>
     public override bool run()
     {
+        var sw = new Stopwatch();
+        sw.Start();
+
         //Step 1: Initialization
         Bb.readBoard();
         int mySpores = me.Spores;
@@ -112,7 +116,8 @@ public class AI : BaseAI
             }
         }
 
-        Console.WriteLine("DONE");
+        sw.Stop();
+        Console.WriteLine("Turn {0} done in {1}ms", turnNumber(), sw.Elapsed);
 
         return true;
     }
