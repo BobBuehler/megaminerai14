@@ -168,4 +168,9 @@ public static class Bb
     {
         return y * Bb.Width + x;
     }
+
+    public static int GetUprootRange(Plant p)
+    {
+        return p.Mutation == BUMBLEWEED ? 75 : 50;
+    }
 }

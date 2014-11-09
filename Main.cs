@@ -9,7 +9,7 @@ public class Program
         if (args.Length < 1)
         {
             
-            var c = new Circle(1, 1, 0);
+            var c = new Circle(1, 1, 1);
             Console.WriteLine("IN");
             var ps = Trig.CalcPointsInCircle(c);
             ps.ForEach(p => Console.WriteLine(p));

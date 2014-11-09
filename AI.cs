@@ -88,6 +88,7 @@ public class AI : BaseAI
             //Check enemy range to move out of range (if desired i.e. soakers to another part of the pool that is outside enemy range)
             //Keep titans out of enemy attack range but in titan debuff range for the enemies
 
+        Solver.PreCalc();
         foreach (var chokerPoint in Bb.ourChokers)
         {
             avoidCircles = Bb.pools.Select(p => p.GetPlant().ToRangeCircle()).Concat(plants.Select(pl => pl.ToUnitCircle())).Concat(germinateLocations.Select(p => p.ToCircle(0)));
