@@ -62,8 +62,6 @@ public class AI : BaseAI
         //Step 1: Initialization
         Bb.readBoard();
         Solver.PreCalc();
-        HashSet<Point> endMoveLocations = new HashSet<Point>();
-        HashSet<Point> attackLocations = new HashSet<Point>();
 
         var toSpawn = new LinkedList<int>(new int[] { Bb.ARALIA, Bb.ARALIA, Bb.ARALIA, Bb.ARALIA });
 
